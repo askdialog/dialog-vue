@@ -1,0 +1,60 @@
+{
+  "settings": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.fixAll.stylelint": "explicit"
+    },
+    "eslint.useFlatConfig": true,
+    "eslint.validate": ["typescript", "typescriptreact", "vue"],
+    "stylelint.validate": ["typescript", "typescriptreact", "vue"],
+    "stylelint.customSyntax": "@stylelint/postcss-css-in-js",
+    "search.exclude": {
+      "**/coverage": true,
+      "**/node_modules": true,
+      "**/.serverless": true,
+      "**/build": true,
+      "**/bundles": true,
+      "**/dist": true,
+      "pnpm-lock.yaml": true
+    },
+    "[dotenv][ignore][properties][shellscript]": {
+      "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "[html][javascript][json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "typescript.tsdk": "dialog root/node_modules/typescript/lib",
+    "jest.disabledWorkspaceFolders": [],
+    "jest.jestCommandLine": "pnpm jest",
+    "jest.coverageFormatter": "DefaultFormatter",
+    "cSpell.words": ["esbuild"],
+    "[json]": {
+      "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "eslint.format.enable": true,
+    "eslint.ignoreUntitled": false,
+    "eslint.trace.server": "true",
+    "vs-code-prettier-eslint.prettierLast": false
+  },
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "editorconfig.editorconfig",
+      "foxundermoon.shell-format",
+      "orta.vscode-jest",
+      "streetsidesoftware.code-spell-checker",
+      "streetsidesoftware.code-spell-checker-french",
+      "stylelint.vscode-stylelint",
+      "styled-components.vscode-styled-components",
+      "SebastianBille.iam-legend"
+    ]
+  },
+  "folders": [
+    {
+      "path": ".",
+      "name": "dialog-vue"
+    }
+  ]
+}
