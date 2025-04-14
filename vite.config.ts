@@ -2,27 +2,30 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 // @ts-expect-error: Type not available
 import eslint from 'vite-plugin-eslint';
-import path from 'path';
+import { resolve } from 'path';
 
-// https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __VUE_OPTIONS_API__: true,
+    __VUE_PROD_DEVTOOLS__: false,
+  },
   plugins: [
     vue(),
     eslint({
-      // Activation du plugin ESLint
       include: ['src/**/*.js', 'src/**/*.vue', 'src/**/*.ts'],
       cache: false,
     }),
   ],
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/index.js'),
+      entry: resolve(__dirname, 'src/main.ts'),
       name: 'dialog-vue',
-      fileName: format => `dialog-vue.${format}.js`,
+      fileName: 'dialog-vue',
     },
     rollupOptions: {
       external: ['vue'],
       output: {
+        inlineDynamicImports: true,
         globals: {
           vue: 'Vue',
         },

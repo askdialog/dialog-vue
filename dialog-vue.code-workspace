@@ -34,7 +34,6 @@
     },
     "eslint.format.enable": true,
     "eslint.ignoreUntitled": false,
-    "eslint.trace.server": "true",
     "vs-code-prettier-eslint.prettierLast": false
   },
   "extensions": {
