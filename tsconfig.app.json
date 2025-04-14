@@ -3,6 +3,10 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 
+    "declaration": true,
+    "declarationDir": "./dist",
+    "emitDeclarationOnly": true,
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

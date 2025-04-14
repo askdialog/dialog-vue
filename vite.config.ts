@@ -2,23 +2,24 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 // @ts-expect-error: Type not available
 import eslint from 'vite-plugin-eslint';
-import path from 'path';
+import { resolve } from 'path';
+import dts from 'vite-plugin-dts';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     eslint({
-      // Activation du plugin ESLint
       include: ['src/**/*.js', 'src/**/*.vue', 'src/**/*.ts'],
       cache: false,
     }),
+    dts({ insertTypesEntry: true }),
   ],
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/index.js'),
+      entry: resolve(__dirname, 'src/main.ts'),
       name: 'dialog-vue',
-      fileName: format => `dialog-vue.${format}.js`,
+      fileName: 'dialog-vue',
     },
     rollupOptions: {
       external: ['vue'],
