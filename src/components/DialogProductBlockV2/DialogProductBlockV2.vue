@@ -1,31 +1,29 @@
 <template>
-  <div class="dialog-block-container">
-    <div>Debug values: shouldShowHeader: {{ shouldShowHeader }}</div>
-    <DialogBlockHeaderV2
-      v-if="shouldShowHeader"
-      :title="assistantName"
-      :description="description"
-    />
-    <DialogBlockSuggestionsContainerV2
-      :client="client"
-      :questions="suggestionData?.questions"
-      :is-loading="isFetchingSuggestions"
-      :product-id="productId"
-      :product-title="productTitle"
-      :selected-variant-id="selectedVariantId"
-    />
-  </div>
+  <ThemeProviderV2 :theme="client.theme">
+    <div class="dialog-block-container">
+      <DialogBlockHeaderV2 :title="assistantName" :description="description" />
+      <DialogBlockSuggestionsContainerV2
+        :client="client"
+        :questions="suggestionData?.questions"
+        :is-loading="isFetchingSuggestions"
+        :product-id="productId"
+        :product-title="productTitle"
+        :selected-variant-id="selectedVariantId"
+      />
+    </div>
+  </ThemeProviderV2>
 </template>
 
 <script lang="ts">
 import { Dialog, type Suggestion } from '@dialog/dialog-custom-sdk';
+import ThemeProviderV2 from './ThemeProviderV2.vue';
 import DialogBlockHeaderV2 from './DialogBlockHeaderV2.vue';
 import DialogBlockSuggestionsContainerV2 from './DialogBlockSuggestionsContainerV2.vue';
 
-console.log('DialogProductBlockV2');
 export default {
   name: 'DialogProductBlockV2',
   components: {
+    ThemeProviderV2,
     DialogBlockHeaderV2,
     DialogBlockSuggestionsContainerV2,
   },
@@ -61,22 +59,16 @@ export default {
     description() {
       return this.suggestionData?.description;
     },
-    shouldShowHeader() {
-      return !this.isFetchingSuggestions && !!this.suggestionData;
-    },
   },
   mounted() {
-    console.log('Mounted');
     this.handleFetchingSuggestions();
   },
   methods: {
     async handleFetchingSuggestions() {
       try {
-        console.log('Fetching suggestions');
         const suggestion = await this.client.getSuggestions(this.productId);
         this.suggestionData = suggestion;
         this.isFetchingSuggestions = false;
-        console.log('Fetched', suggestion);
       } catch (error) {
         console.error('error', error);
       }

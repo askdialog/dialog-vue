@@ -2,49 +2,40 @@
   <slot></slot>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import { type Theme } from '@dialog/dialog-custom-sdk';
-import { onMounted, watch } from 'vue';
+import { defineComponent } from 'vue';
 
-const props = defineProps<{
-  theme: Theme;
-}>();
-
-const body = document.body;
-const camelCaseToKebabCase = (label: string) => {
-  return label.replace(/([A-Z])/g, '-$1').toLowerCase();
-};
-
-const applyTheme = (theme: Theme) => {
-  if (!theme) return;
-
-  Object.keys(theme).forEach(key => {
-    const themeKey = key as keyof Theme;
-    const kebabCaseKey = camelCaseToKebabCase(key);
-    if (theme[themeKey] !== undefined) {
-      body.style.setProperty(
-        `--dialog-theme-${kebabCaseKey}`,
-        theme[themeKey].toString(),
-      );
-    }
-  });
-};
-
-onMounted(() => {
-  console.log('@@ Theme provider mounted @@@');
-  if (props.theme) {
-    applyTheme(props.theme);
-  }
-});
-
-watch(
-  () => props.theme,
-  newTheme => {
-    console.log('@@ Theme provider updated @@@');
-    if (newTheme) {
-      applyTheme(newTheme);
+export default defineComponent({
+  name: 'ThemeProviderV2',
+  props: {
+    theme: {
+      type: Object as () => Theme,
+      required: true,
+    },
+  },
+  mounted() {
+    if (this.theme) {
+      this.applyTheme(this.theme);
     }
   },
-  { deep: true },
-);
+  methods: {
+    camelCaseToKebabCase(label: string): string {
+      return label.replace(/([A-Z])/g, '-$1').toLowerCase();
+    },
+    applyTheme(theme: Theme): void {
+      if (!theme) return;
+      Object.keys(theme).forEach(key => {
+        const themeKey = key as keyof Theme;
+        const kebabCaseKey = this.camelCaseToKebabCase(key);
+        if (theme[themeKey] !== undefined) {
+          document.body.style.setProperty(
+            `--dialog-theme-${kebabCaseKey}`,
+            theme[themeKey].toString(),
+          );
+        }
+      });
+    },
+  },
+});
 </script>

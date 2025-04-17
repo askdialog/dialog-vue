@@ -1,5 +1,6 @@
 <script lang="ts">
 export default {
+  name: 'ComponentB',
   props: {
     message: {
       type: String,
@@ -21,8 +22,10 @@ export default {
 </script>
 
 <template>
-  <div>
-    Hello this is component B : {{ message }} - Click counter : {{ cpt }}
+  <div class="component-b">
+    <div>
+      Hello this is component B : {{ message }} - Click counter : {{ cpt }}
+    </div>
+    <button @click="handleClick">Increment counter</button>
   </div>
-  <button @click="handleClick">Increment counter</button>
 </template>

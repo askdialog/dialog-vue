@@ -31,7 +31,6 @@ const applyTheme = (theme: Theme) => {
 };
 
 onMounted(() => {
-  console.log('@@ Theme provider mounted @@@');
   if (props.theme) {
     applyTheme(props.theme);
   }
@@ -40,7 +39,6 @@ onMounted(() => {
 watch(
   () => props.theme,
   newTheme => {
-    console.log('@@ Theme provider updated @@@');
     if (newTheme) {
       applyTheme(newTheme);
     }

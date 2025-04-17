@@ -14,7 +14,6 @@ const props = defineProps<{
   title?: string;
   description?: string;
 }>();
-console.log('@@@ Header block @@@', props.title, props.description);
 
 watch(
   () => props.title,
