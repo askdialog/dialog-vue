@@ -1,7 +1,7 @@
 {
-  "name": "@dialog/dialog-vue",
+  "name": "@askdialog/dialog-vue",
   "private": false,
-  "version": "1.0.0",
+  "version": "1.0.5",
   "type": "module",
   "main": "./dist/dialog-vue.umd.js",
   "module": "./dist/dialog-vue.js",
@@ -49,8 +49,14 @@
     "vite-plugin-eslint": "^1.8.1",
     "vue-tsc": "^2.2.4"
   },
+  "author": "Dialog",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
     "access": "public"
-  }
+  },
+  "keywords": [
+    "dialog",
+    "dialog-vue",
+    "dialog-sdk",
+    "vue components"
+  ]
 }

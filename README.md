@@ -1,5 +1,56 @@
-# Vue 3 + TypeScript + Vite
+# Dialog Vue
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## Dialog
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+Dialog is an AI assistant designed to boost e-commerce sales by providing intelligent product recommendations and seamless customer interactions.
+
+Visit our website: [Dialog AI Assistant](https://www.askdialog.com/)
+
+## Description
+
+Dialog vue is a component library designed to be used with he progressive javascript framework VueJs.
+
+## Get started
+
+### Prerequisites
+
+Before using the Dialog Vue, you need:
+
+- Our [Dialog SDK](https://www.npmjs.com/package/@askdialog/dialog-sdk) installed.
+- An active API Key, you can retrieve your api key in your [organization settings](https://app.askdialog.com/settings)
+
+### Installation
+
+```bash
+npm install @askdialog/dialog-vue
+# or
+pnpm add @askdialog/dialog-vue
+# or
+yarn add @askdialog/dialog-vue
+```
+
+### Instantiate the client
+
+```typescript
+import { Dialog } from '@dialog/dialog-sdk';
+
+const client = new Dialog({
+  apiKey: 'YOUR_API_KEY', // required
+  locale: 'TARGETED_LOCALE', // required
+  callbacks: {
+    addToCart: () => Promise<void>, // required
+    getProduct: () => Promise<Product>, // required
+  },
+});
+```
+
+### Use DialogProductBlock component
+
+```html
+<DialogProductBlock
+  :client="client"
+  product-id="Product identifier"
+  product-title="Product Title"
+  selected-variant-id="Variant identifier"
+/>
+```
