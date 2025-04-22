@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Dialog, Suggestion } from '@dialog/dialog-custom-sdk';
+import type { Dialog, Suggestion } from '@askdialog/dialog-sdk';
 import DialogBlockSuggestions from './DialogBlockSuggestions.vue';
 import DialogBlockSuggestionsSkeleton from './DialogBlockSuggestionsSkeleton.vue';
 

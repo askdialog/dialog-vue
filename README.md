@@ -32,14 +32,14 @@ yarn add @askdialog/dialog-vue
 ### Instantiate the client
 
 ```typescript
-import { Dialog } from '@dialog/dialog-sdk';
+import { Dialog } from '@askdialog/dialog-sdk';
 
 const client = new Dialog({
   apiKey: 'YOUR_API_KEY', // required
   locale: 'TARGETED_LOCALE', // required
   callbacks: {
     addToCart: () => Promise<void>, // required
-    getProduct: () => Promise<Product>, // required
+    getProduct: () => Promise<SimplifiedProduct>, // required
   },
 });
 ```

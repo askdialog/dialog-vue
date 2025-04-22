@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Dialog, Suggestion } from '@dialog/dialog-custom-sdk';
+import type { Dialog, Suggestion } from '@askdialog/dialog-sdk';
 import AiStarsIcon from '../../icons/AiStarsIcon.vue';
 
 const props = defineProps<{

@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { type Theme } from '@dialog/dialog-custom-sdk';
+import { type Theme } from '@askdialog/dialog-sdk';
 import { onMounted, watch } from 'vue';
 
 const props = defineProps<{
