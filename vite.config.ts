@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue';
 // @ts-expect-error: Type not available
 import eslint from 'vite-plugin-eslint';
 import { resolve } from 'path';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
   define: {
@@ -14,6 +15,10 @@ export default defineConfig({
     eslint({
       include: ['src/**/*.js', 'src/**/*.vue', 'src/**/*.ts'],
       cache: false,
+    }),
+    dts({
+      rollupTypes: false,
+      tsconfigPath: './tsconfig.app.json',
     }),
   ],
   build: {
