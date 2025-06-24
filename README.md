@@ -46,7 +46,12 @@ const client = new Dialog({
 
 ### Use DialogProductBlock component
 
-```html
+- Import DialogProductBlock and the default style
+
+```typescript
+import { DialogProductBlock, } from "@askdialog/dialog-vue";
+import "@askdialog/dialog-vue/style.css";
+
 <DialogProductBlock
   :client="client"
   product-id="Product identifier"
