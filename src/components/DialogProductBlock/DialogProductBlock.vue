@@ -56,6 +56,7 @@ onMounted(async () => {
 
 <style scoped>
 .dialog-block-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
