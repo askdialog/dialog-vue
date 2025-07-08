@@ -55,11 +55,17 @@ const handleClick = (question: string) => {
   gap: 8px;
   border: 1px solid #dddce2;
   border-radius: 24px;
+  transition: transform 0.1s ease-in-out;
+}
+.dialog-block-suggestions-item:hover {
+  transform: scale(1.01);
 }
 .dialog-block-suggestions-item-label {
   color: #575665;
   font-size: var(--dialog-theme-content-font-size);
   font-weight: 500;
+  text-align: left;
+  flex: 1;
 }
 .dialog-block-suggestions-item-icon {
   path {

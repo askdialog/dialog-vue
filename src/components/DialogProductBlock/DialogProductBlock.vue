@@ -62,7 +62,7 @@ onMounted(async () => {
   justify-content: flex-start;
   align-items: flex-start;
   padding: 24px 0;
-  width: 100%;
+  width: fit-content;
   gap: 24px;
 }
 </style>
