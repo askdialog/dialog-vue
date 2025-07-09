@@ -53,9 +53,9 @@ import { DialogProductBlock, } from "@askdialog/dialog-vue";
 import "@askdialog/dialog-vue/style.css";
 
 <DialogProductBlock
-  :client="client"
-  product-id="Product identifier"
-  product-title="Product Title"
-  selected-variant-id="Variant identifier"
+  :client="client" // Required
+  product-id="Product identifier" // Required
+  product-title="Product Title" // Required
+  selected-variant-id="Variant identifier" // Optional
 />
 ```

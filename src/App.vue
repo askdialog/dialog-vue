@@ -52,6 +52,9 @@ const client = new Dialog({
       } as SimplifiedProduct);
     },
   },
+  theme: {
+    fontFamily: 'Arial',
+  },
 });
 </script>
 
