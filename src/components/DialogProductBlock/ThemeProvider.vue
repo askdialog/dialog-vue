@@ -22,10 +22,26 @@ const applyTheme = (theme: Theme) => {
     const themeKey = key as keyof Theme;
     const kebabCaseKey = camelCaseToKebabCase(key);
     if (theme[themeKey] !== undefined) {
-      body.style.setProperty(
-        `--dialog-theme-${kebabCaseKey}`,
-        theme[themeKey].toString(),
-      );
+      if (typeof theme[themeKey] === 'object') {
+        Object.keys(theme[themeKey]).forEach(childKey => {
+          const themeChildKey = childKey as keyof Theme[typeof themeKey];
+          if (themeChildKey !== undefined) {
+            const kebabCaseChildKey = camelCaseToKebabCase(childKey);
+
+            const themeValue = theme[themeKey] as Record<string, string>;
+
+            body.style.setProperty(
+              `--dialog-theme-${kebabCaseKey}-${kebabCaseChildKey}`,
+              themeValue[themeChildKey]?.toString(),
+            );
+          }
+        });
+      } else {
+        body.style.setProperty(
+          `--dialog-theme-${kebabCaseKey}`,
+          theme[themeKey].toString(),
+        );
+      }
     }
   });
 };

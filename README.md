@@ -31,6 +31,8 @@ yarn add @askdialog/dialog-vue
 
 ### Instantiate the client
 
+When you instantiate the Dialog SDK, it will automatically insert the assistant script into the DOM. If you configure it correctly with required fields, clicking on a suggestion question will trigger the assistant.
+
 ```typescript
 import { Dialog } from '@askdialog/dialog-sdk';
 

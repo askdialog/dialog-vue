@@ -61,8 +61,8 @@ const handleClick = (question: string) => {
   transform: scale(1.01);
 }
 .dialog-block-suggestions-item-label {
-  color: #575665;
-  font-size: var(--dialog-theme-content-font-size);
+  color: var(--dialog-theme-content-color, #575665);
+  font-size: var(--dialog-theme-content-font-size, 14px);
   font-weight: 500;
   text-align: left;
   flex: 1;

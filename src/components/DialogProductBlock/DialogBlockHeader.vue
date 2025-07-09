@@ -23,9 +23,9 @@ const props = defineProps<{
 }
 
 .dialog-block-title {
-  color: #6c6c6c;
+  color: var(--dialog-theme-title-color, #272727);
   font-family: var(--dialog-theme-font-family);
-  font-size: 13px;
+  font-size: var(--dialog-theme-title-font-size);
   font-style: normal;
   font-weight: 500;
   line-height: 20px;
@@ -34,9 +34,9 @@ const props = defineProps<{
 }
 
 .dialog-block-description {
-  color: var(--dialog-theme-primary-color);
+  color: var(--dialog-theme-description-color, #6c6c6c);
   font-family: var(--dialog-theme-font-family);
-  font-size: var(--dialog-theme-title-font-size);
+  font-size: var(--dialog-theme-description-font-size);
   font-style: normal;
   font-weight: 500;
   line-height: 20px;

@@ -3,7 +3,7 @@ import { Dialog, type SimplifiedProduct } from '@askdialog/dialog-sdk';
 import DialogProductBlock from './components/DialogProductBlock/DialogProductBlock.vue';
 const client = new Dialog({
   apiKey: 'NjQ2MjQ5MGUtMzE3NS00MmE5LTgyZjgtYWNjNWE1MWE5Zjdh',
-  locale: 'fr',
+  locale: 'en',
   callbacks: {
     addToCart: () => {
       return Promise.resolve();
@@ -21,7 +21,6 @@ const client = new Dialog({
         totalInventory: 0,
         tracksInventory: true,
         hasOnlyDefaultVariant: false,
-
         productType: 'snowboard',
         status: 'ACTIVE',
         options: [
@@ -53,7 +52,25 @@ const client = new Dialog({
     },
   },
   theme: {
+    backgroundColor: 'pink',
+    primaryColor: 'red',
+    ctaTextColor: 'green',
+    ctaBorderType: 'straight',
+    capitalizeCtas: true,
     fontFamily: 'Arial',
+    highlightProductName: true,
+    title: {
+      fontSize: '22px',
+      color: 'purple',
+    },
+    description: {
+      color: 'blue',
+      fontSize: '18px',
+    },
+    content: {
+      color: 'green',
+      fontSize: '10px',
+    },
   },
 });
 </script>
