@@ -40,8 +40,16 @@ const client = new Dialog({
   apiKey: 'YOUR_API_KEY', // required
   locale: 'TARGETED_LOCALE', // required
   callbacks: {
-    addToCart: () => Promise<void>, // required
-    getProduct: () => Promise<SimplifiedProduct>, // required
+    addToCart: ({
+            productId,
+            quantity,
+            variantId,
+        }: {
+            productId: string;
+            quantity: number;
+            variantId?: string;
+        }): Promise<void>, // required
+    getProduct: (productId: string, variantId?: string) => Promise<SimplifiedProduct>, // required
   },
 });
 ```
