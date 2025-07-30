@@ -42,7 +42,6 @@ const handleClick = (question: string) => {
 .dialog-block-suggestions-item {
   border-radius: 18px;
   background-color: #f1f1f1;
-  animation: pulse 1.5s ease-in-out infinite;
   border: none;
   outline: none;
   padding: 12px 16px;
@@ -55,7 +54,6 @@ const handleClick = (question: string) => {
   gap: 8px;
   border: 1px solid #dddce2;
   border-radius: 24px;
-  transition: transform 0.1s ease-in-out;
 }
 .dialog-block-suggestions-item:hover {
   transform: scale(1.01);
