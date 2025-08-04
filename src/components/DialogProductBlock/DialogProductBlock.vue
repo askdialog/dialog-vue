@@ -10,6 +10,14 @@
         :product-title="props.productTitle"
         :selected-variant-id="props?.selectedVariantId"
       />
+      <DialogInput
+        v-if="props.enableInput"
+        :client="props.client"
+        :placeholder="inputPlaceholder"
+        :product-id="props.productId"
+        :product-title="props.productTitle"
+        :selected-variant-id="props?.selectedVariantId"
+      />
     </div>
   </ThemeProvider>
 </template>
@@ -18,6 +26,7 @@
 import { Dialog, type Suggestion } from '@askdialog/dialog-sdk';
 import DialogBlockHeader from './DialogBlockHeader.vue';
 import DialogBlockSuggestionsContainer from './DialogBlockSuggestionsContainer.vue';
+import DialogInput from './DialogInput.vue';
 import ThemeProvider from './ThemeProvider.vue';
 import { computed, onMounted, ref } from 'vue';
 
@@ -26,9 +35,13 @@ interface Props {
   productId: string;
   productTitle: string;
   selectedVariantId?: string;
+  enableInput?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  enableInput: true,
+  selectedVariantId: undefined,
+});
 const isFetchingSuggestions = ref(true);
 const suggestionData = ref<Suggestion | undefined>(undefined);
 
@@ -37,6 +50,9 @@ const assistantName = computed(() => {
 });
 const description = computed(() => {
   return suggestionData.value?.description;
+});
+const inputPlaceholder = computed(() => {
+  return suggestionData.value?.inputPlaceholder;
 });
 
 const handleFetchingSuggestions = async () => {
@@ -64,5 +80,8 @@ onMounted(async () => {
   padding: 24px 0;
   width: fit-content;
   gap: 24px;
+}
+.dialog-block-container > * {
+  box-sizing: border-box;
 }
 </style>

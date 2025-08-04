@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Dialog, type SimplifiedProduct } from '@askdialog/dialog-sdk';
+import DialogInput from './components/DialogProductBlock/DialogInput.vue';
 import DialogProductBlock from './components/DialogProductBlock/DialogProductBlock.vue';
 const client = new Dialog({
   apiKey: 'NjQ2MjQ5MGUtMzE3NS00MmE5LTgyZjgtYWNjNWE1MWE5Zjdh',
@@ -71,11 +72,12 @@ const client = new Dialog({
       } as SimplifiedProduct);
     },
   },
+
   theme: {
     backgroundColor: 'pink',
-    primaryColor: 'red',
-    ctaTextColor: 'green',
-    ctaBorderType: 'straight',
+    primaryColor: 'pink',
+    ctaTextColor: 'white',
+    ctaBorderType: 'rounded',
     capitalizeCtas: true,
     fontFamily: 'Arial',
     highlightProductName: true,
@@ -103,11 +105,21 @@ const client = new Dialog({
       product-title="Product Title"
     />
   </div>
+
+  <div>
+    <p>Single input</p>
+    <DialogInput
+      :client="client"
+      product-id="9403924119882"
+      product-title="Product Title"
+      placeholder="Ask something about this product..."
+    />
+  </div>
 </template>
 
 <style scoped>
 .app-container {
-  width: 100vw;
   height: 100vh;
+  padding: 20px;
 }
 </style>

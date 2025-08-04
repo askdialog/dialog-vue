@@ -67,5 +67,6 @@ import "@askdialog/dialog-vue/style.css";
   product-id="Product identifier" // Required
   product-title="Product Title" // Required
   selected-variant-id="Variant identifier" // Optional
+  :enable-input="true" // Optional - true by default
 />
 ```

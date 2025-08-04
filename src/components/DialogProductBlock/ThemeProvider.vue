@@ -36,12 +36,19 @@ const applyTheme = (theme: Theme) => {
             );
           }
         });
-      } else {
-        body.style.setProperty(
-          `--dialog-theme-${kebabCaseKey}`,
-          theme[themeKey].toString(),
-        );
+        return;
       }
+
+      if (themeKey === 'ctaBorderType') {
+        const borderRadius = theme[themeKey] === 'rounded' ? '24px' : '0';
+        body.style.setProperty(`--dialog-theme-${kebabCaseKey}`, borderRadius);
+        return;
+      }
+
+      body.style.setProperty(
+        `--dialog-theme-${kebabCaseKey}`,
+        theme[themeKey].toString(),
+      );
     }
   });
 };

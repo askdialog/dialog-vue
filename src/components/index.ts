@@ -1,2 +1,3 @@
 import DialogProductBlock from './DialogProductBlock/DialogProductBlock.vue';
-export { DialogProductBlock };
+import DialogInput from './DialogProductBlock/DialogInput.vue';
+export { DialogProductBlock, DialogInput };
