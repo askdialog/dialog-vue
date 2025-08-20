@@ -31,27 +31,23 @@ const client = new Dialog({
             name: 'Taille',
             values: ['162', '159'],
             position: 1,
-            translations: [],
           },
           {
             id: 'gid://shopify/ProductOption/10025502376074',
             name: 'Fixation',
             values: ['Classique', 'Step on'],
             position: 2,
-            translations: [],
           },
           {
             id: 'gid://shopify/ProductOption/10025502408842',
             name: 'Couleur',
             values: ['black', 'green', 'blue', 'pink', 'ben-design'],
             position: 3,
-            translations: [],
           },
         ],
         variants: [
           {
             id: 'gid://shopify/ProductVariant/7899322908810',
-            title: 'Yay',
             displayName: 'Yay',
             selectedOptions: [
               {
