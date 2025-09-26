@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@askdialog/dialog-sdk':
-        specifier: ^1.0.22
-        version: 1.0.22
+        specifier: ^1.0.24
+        version: 1.0.24
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.7.3)
@@ -69,8 +69,8 @@ importers:
 
 packages:
 
-  '@askdialog/dialog-sdk@1.0.22':
-    resolution: {integrity: sha512-7KcZ4SREAMRz/EzGvplw0zQ2ktELiT/vADaV9hkv4nboyB/RFDBQsCxYSoz1LKkZPNRLFcbY7O6V3r0P0BpOHg==}
+  '@askdialog/dialog-sdk@1.0.24':
+    resolution: {integrity: sha512-LWBEd29z9/ZGCEkyOkKyXnpnTCfkD10d0e2RmI3bfY9i3ZC4fllVUJukbCwe0I/nra4AkTwoYP15opxj6LpPsw==}
 
   '@babel/helper-string-parser@7.25.9':
     resolution: {integrity: sha512-4A/SCr/2KLd5jrtOMFzaKjVtAei3+2r/NChoBNoZ3EyP/+GlhoaEGoWOZUmFmoITP7zOJyHIMm+DYRd8o3PvHA==}
@@ -1337,7 +1337,7 @@ packages:
 
 snapshots:
 
-  '@askdialog/dialog-sdk@1.0.22':
+  '@askdialog/dialog-sdk@1.0.24':
     dependencies:
       posthog-js: 1.236.4
       uuidv7: 1.0.2
