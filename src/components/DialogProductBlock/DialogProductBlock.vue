@@ -1,6 +1,6 @@
 <template>
   <ThemeProvider :theme="props.client.theme">
-    <div class="dialog-block-container">
+    <div id="dialog-instant" class="dialog-block-container">
       <DialogBlockHeader :title="assistantName" :description="description" />
       <DialogBlockSuggestionsContainer
         :client="props.client"
