@@ -1,7 +1,7 @@
 {
   "name": "@askdialog/dialog-vue",
   "private": false,
-  "version": "1.0.22",
+  "version": "1.0.23",
   "type": "module",
   "main": "./dist/dialog-vue.umd.js",
   "module": "./dist/dialog-vue.js",
@@ -27,7 +27,7 @@
     "test-linter": "ESLINT_USE_FLAT_CONFIG=true eslint --ext .ts,.vue . --fix"
   },
   "dependencies": {
-    "@askdialog/dialog-sdk": "^1.0.24",
+    "@askdialog/dialog-sdk": "^1.0.25",
     "vue": "^3.5.13"
   },
   "devDependencies": {
