@@ -1,16 +1,22 @@
-// This controller is one cohesive unit. `selectResult` now returns whether the
-// navigate adapter handled the transition, nudging the file just past the
-// default 200-line cap — raised modestly rather than split artificially.
-/* eslint max-lines: ["error", 220] */
+// This controller is one cohesive unit: `selectResult` reports whether the
+// navigate adapter handled the transition and the response is split into the
+// products entry plus its sections, pushing the file past the default 200-line
+// cap — raised modestly rather than split artificially.
+/* eslint max-lines: ["error", 240] */
 import { searchIndexName } from "./services/search";
 import { SearchRequest, SearchResult } from "./types/search";
 import {
   SearchController,
   SearchControllerOptions,
   SearchControllerState,
+  SearchSection,
   SearchStatus,
 } from "./types/searchController";
 import { createControllerAnalytics } from "./utils/searchControllerAnalytics";
+import {
+  buildSectionQueries,
+  pickSectionResults,
+} from "./utils/searchSections";
 
 const DEFAULT_DEBOUNCE_MS = 250;
 const DEFAULT_HITS_PER_PAGE = 12;
@@ -22,6 +28,7 @@ const INITIAL_STATE: SearchControllerState = {
   query: "",
   page: 0,
   response: undefined,
+  sections: undefined,
   error: undefined,
 };
 
@@ -32,8 +39,11 @@ export function createSearchController({
   debounceMs = DEFAULT_DEBOUNCE_MS,
   hitsPerPage = DEFAULT_HITS_PER_PAGE,
   locale,
+  sections = [],
 }: SearchControllerOptions): SearchController {
   const indexName = searchIndexName("products", locale);
+  const resolveSections = (): readonly SearchSection[] =>
+    typeof sections === "function" ? sections() : sections;
   let state = INITIAL_STATE;
   const listeners = new Set<(next: SearchControllerState) => void>();
   const controllerAnalytics = createControllerAnalytics(analytics);
@@ -60,19 +70,26 @@ export function createSearchController({
     abortController = undefined;
   };
 
-  const buildRequest = (query: string, page: number): SearchRequest => ({
-    requests: [{ indexName, query, page, hitsPerPage }],
+  const buildRequest = (
+    query: string,
+    page: number,
+    requested: readonly SearchSection[],
+  ): SearchRequest => ({
+    requests: [
+      { indexName, query, page, hitsPerPage },
+      ...buildSectionQueries(requested, query, locale, hitsPerPage),
+    ],
   });
 
   const run = async (query: string, page: number): Promise<void> => {
     cancelInFlight();
     abortController = new AbortController();
     const id = ++requestId;
-    const request = buildRequest(query, page);
 
     setState({ status: SearchStatus.LOADING, query, page });
     try {
-      const response = await search(request, {
+      const requested = resolveSections();
+      const response = await search(buildRequest(query, page, requested), {
         signal: abortController.signal,
       });
       if (id !== requestId) {
@@ -88,6 +105,7 @@ export function createSearchController({
       setState({
         status: result.nbHits === 0 ? SearchStatus.EMPTY : SearchStatus.SUCCESS,
         response: result,
+        sections: pickSectionResults(response, requested, locale),
         error: undefined,
       });
     } catch (error) {
@@ -97,7 +115,12 @@ export function createSearchController({
       if (id !== requestId) {
         return;
       }
-      setState({ status: SearchStatus.ERROR, error, response: undefined });
+      setState({
+        status: SearchStatus.ERROR,
+        error,
+        response: undefined,
+        sections: undefined,
+      });
     }
   };
 

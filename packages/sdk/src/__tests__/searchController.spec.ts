@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 400] */
+/* eslint max-lines: ["error", 460] */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createSearchController } from "../searchController";
 import {
@@ -366,5 +366,92 @@ describe("createSearchController", () => {
 
     expect(search).toHaveBeenCalledTimes(1);
     expect(controller.getState().status).toBe(SearchStatus.LOADING);
+  });
+  it("requests the sections on their first page with the products and exposes their entries", async () => {
+    const controller = createSearchController({
+      search,
+      analytics: {
+        surface: "search_page",
+        trackViewSearchResults,
+        trackSelectSearchResult,
+      },
+      locale: "fr",
+      sections: [{ index: "collections", hitsPerPage: 5 }],
+    });
+    const collections: SearchResult = {
+      ...response().results[0],
+      index: "collections_fr",
+      hits: [{ objectID: "c1" }],
+      nbHits: 1,
+    };
+    search.mockResolvedValueOnce({
+      results: [...response().results, collections],
+    });
+
+    controller.submit("shoes");
+    await settle();
+
+    expect(search.mock.calls[0][0].requests).toEqual([
+      { indexName: "products_fr", query: "shoes", page: 0, hitsPerPage: 12 },
+      { indexName: "collections_fr", query: "shoes", page: 0, hitsPerPage: 5 },
+    ]);
+    expect(controller.getState().response?.index).toBe("products_fr");
+    expect(controller.getState().sections).toEqual({ collections });
+  });
+
+  it("resolves a sections function per request and leaves a missing entry out", async () => {
+    let enabled = false;
+    const controller = createSearchController({
+      search,
+      analytics: {
+        surface: "search_page",
+        trackViewSearchResults,
+        trackSelectSearchResult,
+      },
+      locale: "fr",
+      sections: () => (enabled ? [{ index: "collections" }] : []),
+    });
+    search.mockResolvedValue(response());
+
+    controller.submit("shoes");
+    await settle();
+    enabled = true;
+    controller.submit("boots");
+    await settle();
+
+    expect(search.mock.calls[0][0].requests).toHaveLength(1);
+    expect(search.mock.calls[1][0].requests).toHaveLength(2);
+    expect(search.mock.calls[1][0].requests[1]).toMatchObject({
+      indexName: "collections_fr",
+      hitsPerPage: 12,
+    });
+    expect(controller.getState().sections).toEqual({});
+  });
+
+  it("enters the error state when the sections resolver throws", async () => {
+    const failure = new Error("entitlement lookup failed");
+    const controller = createSearchController({
+      search,
+      analytics: {
+        surface: "search_page",
+        trackViewSearchResults,
+        trackSelectSearchResult,
+      },
+      locale: "fr",
+      sections: () => {
+        throw failure;
+      },
+    });
+
+    controller.submit("shoes");
+    await settle();
+
+    expect(search).not.toHaveBeenCalled();
+    expect(controller.getState()).toMatchObject({
+      status: SearchStatus.ERROR,
+      error: failure,
+      response: undefined,
+      sections: undefined,
+    });
   });
 });
