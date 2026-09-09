@@ -261,7 +261,7 @@ A non-2xx answer rejects with `DialogSearchError` — stable `name`, HTTP `statu
 
 - Search controller
 
-`createSearchController()` wraps the stateless transport with the stateful behavior every search UI needs — debounce (immediate on explicit submission), cancellation of the in-flight request, stale-response protection (a late response never replaces newer results, even if the transport ignores the abort), pagination that resets on a new query, `idle` / `loading` / `success` / `empty` / `error` states, retry, and the DEC-2448 attribution events (`view_search_results` viewport impressions, `select_search_result` clicks). It searches the products index (`products_<locale>`) and exposes the products result entry as `state.response`. It has no framework or rendering dependency: raw JavaScript, React, Vue and Shopify integrations are rendering-and-routing adapters around it.
+`createSearchController()` wraps the stateless transport with the stateful behavior every search UI needs — debounce (immediate on explicit submission), cancellation of the in-flight request, stale-response protection (a late response never replaces newer results, even if the transport ignores the abort), pagination that resets on a new query, `idle` / `loading` / `success` / `empty` / `error` states, retry, and the attribution events (`view_search_results` viewport impressions, `select_search_result` clicks). It searches the products index (`products_<locale>`) and exposes the products result entry as `state.response`; optional `sections` add other indices (`collections`, …) to the same request, exposed under `state.sections`. It has no framework or rendering dependency: raw JavaScript, React, Vue and Shopify integrations are rendering-and-routing adapters around it.
 
 ```typescript
 import { createSearchController, Dialog, SearchStatus } from '@askdialog/dialog-sdk';
@@ -279,6 +279,7 @@ const controller = createSearchController({
   navigate: (url) => router.push(url), // optional platform routing adapter
   debounceMs: 250, // optional (default 250)
   hitsPerPage: 12, // optional (default 12)
+  sections: [{ index: 'collections', hitsPerPage: 5 }], // optional, first page only; a function is resolved per request
 });
 
 const unsubscribe = controller.subscribe((state) => {
