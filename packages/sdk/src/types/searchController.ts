@@ -1,5 +1,6 @@
 import {
   SearchHit,
+  SearchIndex,
   SearchOptions,
   SearchRequest,
   SearchResponse,
@@ -22,6 +23,11 @@ export const SearchStatus = {
 
 export type SearchStatus = (typeof SearchStatus)[keyof typeof SearchStatus];
 
+export interface SearchSection {
+  index: Exclude<SearchIndex, "products">;
+  hitsPerPage?: number;
+}
+
 export interface SearchControllerState {
   status: SearchStatus;
   /** Last committed (run) query — not the text currently being typed. */
@@ -33,6 +39,7 @@ export interface SearchControllerState {
    * loads, cleared on error. Hits are flat records (`objectID`, `title`, …).
    */
   response?: SearchResult;
+  sections?: Partial<Record<SearchIndex, SearchResult>>;
   error?: unknown;
 }
 
@@ -67,6 +74,7 @@ export interface SearchControllerOptions {
   debounceMs?: number;
   hitsPerPage?: number;
   locale: string;
+  sections?: readonly SearchSection[] | (() => readonly SearchSection[]);
 }
 
 /**
