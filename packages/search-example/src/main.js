@@ -155,10 +155,11 @@ function render(state) {
 }
 
 function start(apiKey) {
-  const dialog = new Dialog({ apiKey, locale: "fr" });
+  const dialog = new Dialog({ apiKey, locale: "fr-FR", currency: "EUR" });
   controller = createSearchController({
-    search: (request, options) => dialog.search(request, options),
-    locale: dialog.locale,
+    client: dialog,
+    language: "fr",
+    currency: dialog.currency,
     analytics: {
       surface: "search_page",
       trackViewSearchResults: (params) => dialog.trackViewSearchResults(params),

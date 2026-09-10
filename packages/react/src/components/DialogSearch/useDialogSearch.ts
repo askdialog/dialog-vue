@@ -12,14 +12,16 @@ import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
 export interface UseDialogSearchOptions {
   client: Dialog;
-  /** Where the results are displayed, for search analytics. */
+  /** Lowercase ISO 639-1 language code, e.g. `fr`. */
+  language: string;
+  /** ISO 4217 currency, independent of language. */
+  currency: string;
+  /** UI surface used in search analytics. */
   surface?: SearchSurface;
-  /** Router adapter called after selection attribution; omit to let the cards' `<a href>` navigate natively. */
+  /** Navigate after recording selection; omit to use native links. */
   navigate?: (url: string, hit: SearchHit) => void;
   debounceMs?: number;
   hitsPerPage?: number;
-  /** Storefront locale for the searched index (`products_fr`); defaults to the client's. */
-  locale?: string;
 }
 
 export interface DialogSearch {
@@ -33,7 +35,7 @@ const SERVER_SNAPSHOT: SearchControllerState = {
   page: 0,
 };
 
-/** Options are read when the controller is created — later changes don't rebind a live controller. */
+/** Options are fixed when the controller is created. */
 export const useDialogSearch = (
   options: UseDialogSearchOptions,
 ): DialogSearch => {
@@ -43,16 +45,9 @@ export const useDialogSearch = (
 
   const getController = useCallback((): SearchController => {
     if (controllerRef.current === undefined) {
-      const {
-        client,
-        surface = "search_page",
-        locale = client.locale,
-        ...rest
-      } = optionsRef.current;
+      const { client, surface = "search_page", ...rest } = optionsRef.current;
       controllerRef.current = createSearchController({
-        search: (request, requestOptions) =>
-          client.search(request, requestOptions),
-        locale,
+        client,
         analytics: {
           surface,
           trackViewSearchResults: (params) =>
@@ -67,9 +62,7 @@ export const useDialogSearch = (
     return controllerRef.current;
   }, []);
 
-  // StrictMode disposes the first controller after the initial render; this
-  // stable facade re-resolves the live one so rendered components never
-  // dispatch into the dead instance.
+  // Resolve the current controller after StrictMode disposes the initial instance.
   const facadeRef = useRef<SearchController | undefined>(undefined);
   facadeRef.current ??= {
     setQuery: (rawQuery) => getController().setQuery(rawQuery),
@@ -82,8 +75,7 @@ export const useDialogSearch = (
       getController().selectResult(index, options),
     subscribe: (listener) => getController().subscribe(listener),
     getState: () => getController().getState(),
-    // Clear the ref so the next access creates a fresh controller instead of
-    // dispatching into the disposed one; never create a controller here.
+    // Create a replacement on next access after disposal.
     dispose: () => {
       controllerRef.current?.dispose();
       controllerRef.current = undefined;

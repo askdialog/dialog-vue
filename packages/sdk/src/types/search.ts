@@ -1,4 +1,4 @@
-/** Logical indices the public search serves; the wire name adds the locale. */
+/** Supported indices before adding language and currency. */
 export const SEARCH_INDICES = [
   "products",
   "collections",
@@ -9,13 +9,17 @@ export const SEARCH_INDICES = [
 export type SearchIndex = (typeof SEARCH_INDICES)[number];
 
 export interface SearchQuery {
-  /** `<index>_<locale>` (e.g. `products_fr`), one shared locale per request; unknown or unserved → 404. */
+  /**
+   * `<index>_<lang>_<currency>`, e.g. `products_fr_eur`.
+   * Use the same language and lowercase ISO 4217 currency for every entry.
+   * Unsupported index names return 404.
+   */
   indexName: string;
-  /** Trimmed server-side; must keep at least two visible characters (code points). */
+  /** At least two code points after server-side trimming. */
   query: string;
-  /** Zero-indexed results page. Defaults to 0 server-side. */
+  /** Zero-based page; server default: 0. */
   page?: number;
-  /** Between 1 and 100. Defaults to 20 server-side. */
+  /** Page size from 1 to 100; server default: 20. */
   hitsPerPage?: number;
 }
 
@@ -24,14 +28,14 @@ export interface SearchRequest {
 }
 
 export interface SearchOptions {
-  /** Forwarded to fetch untouched: aborting rejects with the native AbortError. */
+  /** Passed to fetch; cancellation rejects with `AbortError`. */
   signal?: AbortSignal;
 }
 
 export interface SearchPrice {
-  /** Decimal amount as a string, exactly as indexed (e.g. "24.90"). */
+  /** Decimal string, e.g. "24.90". */
   amount: string;
-  /** Absent when the price was indexed without a currency. */
+  /** Currency code, if provided by the index. */
   currencyCode?: string;
 }
 
@@ -40,11 +44,7 @@ export interface SearchPriceRange {
   max: SearchPrice;
 }
 
-/**
- * A flat, storefront-ready record: `objectID` plus the record's attributes.
- * Every display field is best-effort — a hit may carry only its id;
- * `priceRange` only comes from the products index.
- */
+/** Indexed record. Display fields are optional; only products have `priceRange`. */
 export interface SearchHit {
   objectID: string;
   title?: string;
@@ -66,7 +66,7 @@ export interface SearchResult {
   queryID: string;
 }
 
-/** One entry per request entry, in request order. */
+/** Results in request order. */
 export interface SearchResponse {
   results: SearchResult[];
 }

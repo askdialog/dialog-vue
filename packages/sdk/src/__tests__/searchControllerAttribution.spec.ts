@@ -19,7 +19,7 @@ vi.mock("../utils/searchImpressions", () => ({
 const response = (overrides: Partial<SearchResult> = {}): SearchResponse => ({
   results: [
     {
-      index: "products_fr",
+      index: "products_fr_eur",
       hits: [
         { objectID: "p1", url: "https://shop.example/p1" },
         { objectID: "p2" },
@@ -43,14 +43,15 @@ const navigate = vi.fn();
 
 const createController = (): SearchController =>
   createSearchController({
-    search,
+    client: { search },
+    language: "fr",
+    currency: "EUR",
     analytics: {
       surface: "search_page",
       trackViewSearchResults,
       trackSelectSearchResult,
     },
     navigate,
-    locale: "fr",
   });
 
 beforeEach(() => {
@@ -92,7 +93,7 @@ describe("search controller attribution", () => {
 
     expect(tracker.setContext).toHaveBeenCalledWith({
       query_id: "qid-1",
-      index: "products_fr",
+      index: "products_fr_eur",
       surface: "search_page",
       search_type: "lexical",
       page: 2,
@@ -132,7 +133,7 @@ describe("search controller attribution", () => {
 
     expect(trackViewSearchResults).toHaveBeenCalledWith({
       query_id: "qid-1",
-      index: "products_fr",
+      index: "products_fr_eur",
       surface: "search_page",
       search_type: "lexical",
       page: 1,
@@ -187,7 +188,7 @@ describe("search controller attribution", () => {
     });
     expect(trackSelectSearchResult).toHaveBeenCalledWith({
       query_id: "qid-1",
-      index: "products_fr",
+      index: "products_fr_eur",
       surface: "search_page",
       search_type: "lexical",
       page: 1,
@@ -255,13 +256,14 @@ describe("search controller attribution", () => {
 
   it("returns false when no navigate adapter is configured", async () => {
     const controller = createSearchController({
-      search,
+      client: { search },
+      language: "fr",
+      currency: "EUR",
       analytics: {
         surface: "search_page",
         trackViewSearchResults,
         trackSelectSearchResult,
       },
-      locale: "fr",
     });
     search.mockResolvedValue(response());
 

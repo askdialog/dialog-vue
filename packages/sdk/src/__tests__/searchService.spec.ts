@@ -8,7 +8,7 @@ const API_KEY = "pk_test_abcdef";
 const request: SearchRequest = {
   requests: [
     {
-      indexName: "products_fr",
+      indexName: "products_fr_eur",
       query: "running shoes",
       page: 2,
       hitsPerPage: 50,
@@ -19,7 +19,7 @@ const request: SearchRequest = {
 const emptyResponse: SearchResponse = {
   results: [
     {
-      index: "products_fr",
+      index: "products_fr_eur",
       hits: [],
       nbHits: 0,
       page: 0,
@@ -51,16 +51,25 @@ afterEach(() => {
 
 describe("searchIndexName", () => {
   it.each([
-    ["fr-FR", "products_fr"],
-    ["pt-BR", "products_pt"],
-    ["fr", "products_fr"],
-    ["not a locale", "products_not a locale"],
-  ])("reduces the locale %s to a bare-language index name", (locale, name) => {
-    expect(searchIndexName("products", locale)).toBe(name);
-  });
+    ["fr", "EUR", "products_fr_eur"],
+    ["pt", "BRL", "products_pt_brl"],
+    ["fr", "CAD", "products_fr_cad"],
+    ["en", "EUR", "products_en_eur"],
+  ])(
+    "builds an index name from language %s and currency",
+    (locale, currency, name) => {
+      expect(searchIndexName("products", locale, currency)).toBe(name);
+    },
+  );
 
   it("names every logical index", () => {
-    expect(searchIndexName("collections", "en-US")).toBe("collections_en");
+    expect(searchIndexName("collections", "en", "USD")).toBe(
+      "collections_en_usd",
+    );
+    expect(() => searchIndexName("products", "fr-FR", "EUR")).toThrow(
+      /ISO 639-1/,
+    );
+    expect(() => searchIndexName("products", "fr", "")).toThrow(/ISO 4217/);
   });
 });
 
@@ -85,12 +94,12 @@ describe("searchLexical", () => {
     fetchMock.mockResolvedValue(jsonResponse(emptyResponse));
 
     await searchLexical(API_KEY, {
-      requests: [{ indexName: "products_fr", query: "running shoes" }],
+      requests: [{ indexName: "products_fr_eur", query: "running shoes" }],
     });
 
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(JSON.parse(init.body as string)).toEqual({
-      requests: [{ indexName: "products_fr", query: "running shoes" }],
+      requests: [{ indexName: "products_fr_eur", query: "running shoes" }],
     });
   });
 

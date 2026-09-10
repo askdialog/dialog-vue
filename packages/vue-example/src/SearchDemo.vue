@@ -10,7 +10,11 @@ const props = defineProps<{
   client: Dialog;
 }>();
 
-const { controller, state } = useDialogSearch({ client: props.client });
+const { controller, state } = useDialogSearch({
+  client: props.client,
+  language: "en",
+  currency: props.client.currency,
+});
 </script>
 
 <template>

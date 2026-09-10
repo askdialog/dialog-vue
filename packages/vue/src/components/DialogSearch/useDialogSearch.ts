@@ -11,14 +11,16 @@ import { onMounted, onUnmounted, shallowRef, type ShallowRef } from "vue";
 
 export interface UseDialogSearchOptions {
   client: Dialog;
-  /** Where the results are displayed, for search analytics. */
+  /** Lowercase ISO 639-1 language code, e.g. `fr`. */
+  language: string;
+  /** ISO 4217 currency, independent of language. */
+  currency: string;
+  /** UI surface used in search analytics. */
   surface?: SearchSurface;
-  /** Router adapter called after selection attribution; omit to let the cards' `<a href>` navigate natively. */
+  /** Navigate after recording selection; omit to use native links. */
   navigate?: (url: string, hit: SearchHit) => void;
   debounceMs?: number;
   hitsPerPage?: number;
-  /** Storefront locale for the searched index (`products_fr`); defaults to the client's. */
-  locale?: string;
 }
 
 export interface DialogSearch {
@@ -26,19 +28,13 @@ export interface DialogSearch {
   state: Readonly<ShallowRef<SearchControllerState>>;
 }
 
-/** Options are read once during setup — later changes don't rebind the live controller. */
+/** Options are fixed when the controller is created. */
 export const useDialogSearch = (
   options: UseDialogSearchOptions,
 ): DialogSearch => {
-  const {
-    client,
-    surface = "search_page",
-    locale = client.locale,
-    ...rest
-  } = options;
+  const { client, surface = "search_page", ...rest } = options;
   const controller = createSearchController({
-    search: (request, requestOptions) => client.search(request, requestOptions),
-    locale,
+    client,
     analytics: {
       surface,
       trackViewSearchResults: (params) => client.trackViewSearchResults(params),
