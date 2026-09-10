@@ -4,10 +4,7 @@ import {
   type SearchControllerState,
 } from "@askdialog/dialog-sdk";
 
-// Closes the floating panel on any pointer interaction outside it and outside
-// the search bar (the anchor's previous sibling). The controller keeps its
-// results: typing again or re-focusing the bar reopens the panel, like a
-// native autocomplete.
+// Dismiss outside the panel and search bar while retaining search results.
 export const useOutsideDismiss = (
   state: SearchControllerState,
   anchorRef: RefObject<HTMLDivElement | null>,
@@ -16,9 +13,7 @@ export const useOutsideDismiss = (
   const panelRef = useRef<HTMLDivElement>(null);
   const isOpen = state.status !== SearchStatus.IDLE && !dismissed;
 
-  // Only a new committed query signals user intent — deliberately NOT every
-  // state emission: a response landing after the user clicked away must not
-  // reopen the panel on its own.
+  // Reopen on query changes, not on responses arriving after dismissal.
   useEffect(() => {
     setDismissed(false);
   }, [state.query]);
