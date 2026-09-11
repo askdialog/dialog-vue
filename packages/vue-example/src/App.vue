@@ -6,7 +6,8 @@ import SearchDemo from "./SearchDemo.vue";
 
 const client = new Dialog({
   apiKey: import.meta.env.VITE_DIALOG_API_KEY || "",
-  locale: "en",
+  locale: "en-US",
+  currency: "EUR",
   callbacks: {
     addToCart: () => {
       console.log("addToCart");

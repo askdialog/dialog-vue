@@ -51,7 +51,8 @@ import { Dialog } from '@askdialog/dialog-sdk';
 
 const client = new Dialog({
   apiKey: 'YOUR_API_KEY', // required
-  locale: 'TARGETED_LOCALE', // required
+  locale: 'fr-FR', currency: 'EUR', // ISO 639-1 language
+  currency: 'EUR', // required ISO 4217 currency
   countryCode: 'FR', // optional, ISO 3166 alpha-2
   callbacks: {
     addToCart: async ({
@@ -100,7 +101,7 @@ Declare it at construction on product pages:
 ```ts
 new Dialog({
   apiKey: 'YOUR_API_KEY',
-  locale: 'fr',
+  locale: 'fr-FR', currency: 'EUR',
   product: { id: 'PRODUCT_ID', variantId: 'VARIANT_ID' }, // variantId optional
 });
 ```
@@ -130,7 +131,7 @@ Some sessions must hide purchasing actions — for example a B2B storefront that
 ```ts
 new Dialog({
   apiKey: 'YOUR_API_KEY',
-  locale: 'fr',
+  locale: 'fr-FR', currency: 'EUR',
   disableAddToCart: true, // hide the add-to-cart CTA for this session
 });
 ```
@@ -219,18 +220,20 @@ Example of expected result:
 
 - Search products
 
-`client.search()` performs a typed, Algolia-shaped search through Dialog's public API, with no framework and no commerce callbacks required. Each entry targets an index named `<index>_<locale>` (index ∈ `products | collections | articles | pages`, locale ISO 639-1) — build the name with `searchIndexName(index, locale)`, which reduces any BCP-47 tag to its bare language.
+`client.search()` sends a multi-index request to the public search API. Build names with `searchIndexName(index, language, currency)`: `<index>_<lang>_<currency>`, e.g. `products_fr_eur`. Supported indices: `products`, `collections`, `articles`, `pages`. Language must be a lowercase ISO 639-1 code (`fr`, `en`). Regional locales such as `fr-FR` are rejected. The ISO 4217 currency is lowercased in the index name.
+
+Currency is required and independent of language: `fr` with `USD` produces `products_fr_usd`. Names without a currency suffix return 404.
 
 ```typescript
 import { Dialog, DialogSearchError, searchIndexName } from '@askdialog/dialog-sdk';
 import type { SearchResponse } from '@askdialog/dialog-sdk';
 
-const client = new Dialog({ apiKey: 'YOUR_API_KEY', locale: 'fr' });
+const client = new Dialog({ apiKey: 'YOUR_API_KEY', locale: 'fr-FR', currency: 'EUR' });
 
 const response: SearchResponse = await client.search({
   requests: [
     {
-      indexName: searchIndexName('products', client.locale), // "products_fr"
+      indexName: searchIndexName('products', 'fr', client.currency), // "products_fr_eur"
       query: 'shampoo',
       page: 0, // optional, zero-indexed (default 0)
       hitsPerPage: 20, // optional, 1-100 (default 20)
@@ -248,29 +251,32 @@ With the IIFE bundle the results are plain runtime JSON (same shape, no types):
 ```html
 <script src="https://d2m6yt8rnm4dos.cloudfront.net/dialog-sdk.X.Y.Z.min.js"></script>
 <script>
-  const client = new window.DialogSDK.Dialog({ apiKey: 'YOUR_API_KEY', locale: 'fr' });
+  const client = new window.DialogSDK.Dialog({ apiKey: 'YOUR_API_KEY', locale: 'fr-FR', currency: 'EUR' });
   client
-    .search({ requests: [{ indexName: 'products_fr', query: 'shampoo' }] })
+    .search({ requests: [{ indexName: 'products_fr_eur', query: 'shampoo' }] })
     .then((response) => console.log(response.results[0].hits));
 </script>
 ```
 
 A non-2xx answer rejects with `DialogSearchError` — stable `name`, HTTP `status` and `message` (e.g. `404 Index products_xx does not exist`, `400 Unknown parameter: foo`). Aborting rejects with the native `AbortError`, and network failures keep their native errors.
 
-`client.search()` itself is stateless: no debounce, no cache, no automatic cancellation of previous searches. For search-as-you-type, use the search controller below instead of hand-rolling those.
+`client.search()` sends requests unchanged, without debounce, caching or automatic cancellation. Use `createSearchController()` for interactive search.
 
 - Search controller
 
-`createSearchController()` wraps the stateless transport with the stateful behavior every search UI needs — debounce (immediate on explicit submission), cancellation of the in-flight request, stale-response protection (a late response never replaces newer results, even if the transport ignores the abort), pagination that resets on a new query, `idle` / `loading` / `success` / `empty` / `error` states, retry, and the attribution events (`view_search_results` viewport impressions, `select_search_result` clicks). It searches the products index (`products_<locale>`) and exposes the products result entry as `state.response`; optional `sections` add other indices (`collections`, …) to the same request, exposed under `state.sections`. It has no framework or rendering dependency: raw JavaScript, React, Vue and Shopify integrations are rendering-and-routing adapters around it.
+`createSearchController()` handles debounce, cancellation, stale responses, pagination, retries and search analytics. New queries reset pagination. State is `idle`, `loading`, `success`, `empty` or `error`.
+
+Products are available in `state.response`. Optional `sections` query additional indexes in the same request and expose results in `state.sections`.
 
 ```typescript
 import { createSearchController, Dialog, SearchStatus } from '@askdialog/dialog-sdk';
 
-const client = new Dialog({ apiKey: 'YOUR_API_KEY', locale: 'fr' });
+const client = new Dialog({ apiKey: 'YOUR_API_KEY', locale: 'fr-FR', currency: 'EUR' });
 
 const controller = createSearchController({
   search: (request, options) => client.search(request, options),
-  locale: client.locale, // names the searched index ("products_fr")
+  language: 'fr',
+  currency: client.currency,
   analytics: {
     surface: 'search_page', // where results are displayed
     trackViewSearchResults: (params) => client.trackViewSearchResults(params),
@@ -283,7 +289,7 @@ const controller = createSearchController({
 });
 
 const unsubscribe = controller.subscribe((state) => {
-  // state: { status, query, page, response?, error? }
+  // state: { status, query, page, response?, sections?, error? }
   if (state.status === SearchStatus.SUCCESS) {
     renderCards(state.response.hits).forEach((element, index) => {
       controller.observeResult(element, index); // viewport impression
@@ -296,16 +302,20 @@ input.oninput = () => controller.setQuery(input.value); // debounced
 form.onsubmit = () => controller.submit(input.value); // immediate
 nextButton.onclick = () => controller.setPage(controller.getState().page + 1);
 retryButton.onclick = () => controller.retry();
-// On teardown (SPA unmount): cancel in-flight work and detach observers.
+// Cancel requests and remove observers on unmount.
 controller.dispose();
 ```
 
-The adapter contract for a framework binding (React, Vue, Shopify):
+The client uses a BCP-47 `locale` such as `fr-FR` for assistant localization. Search controllers and React/Vue hooks require explicit `language` (ISO 639-1) and `currency` (ISO 4217), independently of the client locale. Pass `client.currency` to reuse its configured currency.
 
-- **Rendering** — subscribe to the controller (`subscribe`/`getState` fit React's `useSyncExternalStore` and a Vue `shallowRef` updated by the listener) and render the five states; never re-implement debounce, `AbortController` or race protection locally.
-- **Attribution** — call `observeResult(element, index)` for every rendered result and `selectResult(index)` on every result click (including middle-click/cmd+click). Do not `preventDefault` a same-tab navigation: attribution is recorded first and the events survive it.
-- **Routing** — platform navigation and URL synchronization (query params, history) stay in the adapter: pass `navigate` for router-driven platforms, or let plain `<a href>` links navigate natively.
-- **Lifecycle** — create one controller per search surface and `dispose()` it on unmount.
+For Shopify, use `window.Shopify.currency.active` as the currency. Controller options are fixed at creation; recreate the controller to change language or currency.
+
+Framework integrations:
+
+- Subscribe to state changes and render results.
+- Call `observeResult(element, index)` for each result and `selectResult(index)` on selection. Use `{ navigate: false }` for middle-clicks and modified clicks. Call `preventDefault()` only when `selectResult` returns true.
+- Pass `navigate` for router navigation. The integration owns URL synchronization.
+- Create one controller per search surface and call `dispose()` on unmount.
 
 The raw JavaScript reference adapter lives in [`packages/search-example`](../search-example).
 
@@ -531,7 +541,8 @@ interface AssistantEvent {
   payload: {
     // Common fields (included in all events)
     date: string;        // ISO timestamp
-    locale: string;      // Current locale
+    locale: string;      // BCP-47 locale
+    currency: string;    // Current currency
     url: string;         // Current page URL
     userId?: string;     // User ID if available
     

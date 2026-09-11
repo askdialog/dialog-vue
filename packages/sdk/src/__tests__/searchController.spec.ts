@@ -1,4 +1,4 @@
-/* eslint max-lines: ["error", 460] */
+/* eslint max-lines: ["error", 490] */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createSearchController } from "../searchController";
 import {
@@ -24,7 +24,7 @@ const DEBOUNCE_MS = 250;
 const response = (overrides: Partial<SearchResult> = {}): SearchResponse => ({
   results: [
     {
-      index: "products_fr",
+      index: "products_fr_eur",
       hits: [{ objectID: "p1" }, { objectID: "p2" }],
       nbHits: 2,
       page: 0,
@@ -55,7 +55,7 @@ const deferred = (): Deferred => {
   return { promise, resolve, reject };
 };
 
-// Lets the controller's `await search(...)` continuation run.
+// Flush the search promise continuation.
 const settle = async (): Promise<void> => {
   await Promise.resolve();
   await Promise.resolve();
@@ -72,12 +72,13 @@ const states: SearchControllerState[] = [];
 const createController = (): ReturnType<typeof createSearchController> => {
   const controller = createSearchController({
     search,
+    language: "fr",
+    currency: "EUR",
     analytics: {
       surface: "search_page",
       trackViewSearchResults,
       trackSelectSearchResult,
     },
-    locale: "fr",
   });
   controller.subscribe((state) => states.push(state));
 
@@ -125,24 +126,32 @@ describe("createSearchController", () => {
     expect(controller.getState().status).toBe(SearchStatus.SUCCESS);
   });
 
-  it("sends one products entry named after the bare-language locale", async () => {
+  it("sends one products entry with independent language and currency", async () => {
     const controller = createSearchController({
       search,
+      language: "fr",
+      currency: "USD",
       analytics: {
         surface: "search_page",
         trackViewSearchResults,
         trackSelectSearchResult,
       },
-      locale: "fr-FR",
     });
-    search.mockResolvedValue(response({ query: "shoes" }));
+    search.mockResolvedValue(
+      response({ query: "shoes", index: "products_fr_usd" }),
+    );
 
     controller.submit("shoes");
     await settle();
 
     expect(search.mock.calls[0][0]).toEqual({
       requests: [
-        { indexName: "products_fr", query: "shoes", page: 0, hitsPerPage: 12 },
+        {
+          indexName: "products_fr_usd",
+          query: "shoes",
+          page: 0,
+          hitsPerPage: 12,
+        },
       ],
     });
     controller.dispose();
@@ -163,7 +172,7 @@ describe("createSearchController", () => {
     expect(controller.getState().status).toBe(SearchStatus.SUCCESS);
   });
 
-  it("aborts the previous in-flight request when a new one starts", async () => {
+  it("invalidates the previous request as soon as new input is queued", async () => {
     const controller = createController();
     const first = deferred();
     const second = deferred();
@@ -173,9 +182,15 @@ describe("createSearchController", () => {
 
     controller.submit("shoes");
     const firstSignal = search.mock.calls[0][1]?.signal;
-    controller.submit("boots");
+    controller.setQuery("boots");
+    first.resolve(response({ query: "shoes" }));
+    await settle();
 
     expect(firstSignal?.aborted).toBe(true);
+    expect(search).toHaveBeenCalledTimes(1);
+    expect(controller.getState().response).toBeUndefined();
+    expect(controller.getState().status).toBe(SearchStatus.LOADING);
+    vi.advanceTimersByTime(DEBOUNCE_MS);
 
     second.resolve(response({ query: "boots", queryID: "qid-2" }));
     await settle();
@@ -195,7 +210,7 @@ describe("createSearchController", () => {
     controller.submit("boots");
     fresh.resolve(response({ query: "boots", queryID: "qid-2" }));
     await settle();
-    // The stale transport ignored the abort and answers after the fresh one.
+    // Simulate a late response from a transport that ignores cancellation.
     stale.resolve(response({ query: "shoes", queryID: "qid-1" }));
     await settle();
 
@@ -370,32 +385,43 @@ describe("createSearchController", () => {
   it("requests the sections on their first page with the products and exposes their entries", async () => {
     const controller = createSearchController({
       search,
+      language: "fr",
+      currency: "USD",
       analytics: {
         surface: "search_page",
         trackViewSearchResults,
         trackSelectSearchResult,
       },
-      locale: "fr",
       sections: [{ index: "collections", hitsPerPage: 5 }],
     });
     const collections: SearchResult = {
       ...response().results[0],
-      index: "collections_fr",
+      index: "collections_fr_usd",
       hits: [{ objectID: "c1" }],
       nbHits: 1,
     };
     search.mockResolvedValueOnce({
-      results: [...response().results, collections],
+      results: [...response({ index: "products_fr_usd" }).results, collections],
     });
 
     controller.submit("shoes");
     await settle();
 
     expect(search.mock.calls[0][0].requests).toEqual([
-      { indexName: "products_fr", query: "shoes", page: 0, hitsPerPage: 12 },
-      { indexName: "collections_fr", query: "shoes", page: 0, hitsPerPage: 5 },
+      {
+        indexName: "products_fr_usd",
+        query: "shoes",
+        page: 0,
+        hitsPerPage: 12,
+      },
+      {
+        indexName: "collections_fr_usd",
+        query: "shoes",
+        page: 0,
+        hitsPerPage: 5,
+      },
     ]);
-    expect(controller.getState().response?.index).toBe("products_fr");
+    expect(controller.getState().response?.index).toBe("products_fr_usd");
     expect(controller.getState().sections).toEqual({ collections });
   });
 
@@ -403,12 +429,13 @@ describe("createSearchController", () => {
     let enabled = false;
     const controller = createSearchController({
       search,
+      language: "fr",
+      currency: "EUR",
       analytics: {
         surface: "search_page",
         trackViewSearchResults,
         trackSelectSearchResult,
       },
-      locale: "fr",
       sections: () => (enabled ? [{ index: "collections" }] : []),
     });
     search.mockResolvedValue(response());
@@ -422,7 +449,7 @@ describe("createSearchController", () => {
     expect(search.mock.calls[0][0].requests).toHaveLength(1);
     expect(search.mock.calls[1][0].requests).toHaveLength(2);
     expect(search.mock.calls[1][0].requests[1]).toMatchObject({
-      indexName: "collections_fr",
+      indexName: "collections_fr_eur",
       hitsPerPage: 12,
     });
     expect(controller.getState().sections).toEqual({});
@@ -432,12 +459,13 @@ describe("createSearchController", () => {
     const failure = new Error("entitlement lookup failed");
     const controller = createSearchController({
       search,
+      language: "fr",
+      currency: "EUR",
       analytics: {
         surface: "search_page",
         trackViewSearchResults,
         trackSelectSearchResult,
       },
-      locale: "fr",
       sections: () => {
         throw failure;
       },

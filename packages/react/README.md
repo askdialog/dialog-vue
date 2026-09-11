@@ -38,7 +38,7 @@ import '@askdialog/dialog-react/style.css';
 
 const client = new Dialog({
   apiKey: 'your-api-key',
-  locale: 'en',
+  locale: 'en', currency: 'EUR',
   callbacks: {
     addToCart: () => Promise.resolve(),
     getProduct: () => Promise.resolve({
@@ -105,7 +105,7 @@ Standalone input component for asking questions.
 
 ### Storefront search
 
-React binding of the SDK search controller (`createSearchController`): debounce, cancellation, stale-response protection, pagination and search attribution analytics all come from the SDK — these components only render and route.
+`useDialogSearch` binds the SDK controller to component state. The controller manages requests and analytics; components handle rendering and navigation.
 
 ```tsx
 import { Dialog } from '@askdialog/dialog-sdk';
@@ -116,10 +116,10 @@ import {
 } from '@askdialog/dialog-react';
 import '@askdialog/dialog-react/style.css';
 
-const client = new Dialog({ apiKey: 'your-api-key', locale: 'en' });
+const client = new Dialog({ apiKey: 'your-api-key', locale: 'en-US', currency: 'USD' });
 
 function SearchPage() {
-  const { controller, state } = useDialogSearch({ client });
+  const { controller, state } = useDialogSearch({ client, language: 'en', currency: client.currency });
 
   return (
     <>
@@ -136,11 +136,14 @@ Creates one search controller per hook instance and disposes it on unmount.
 
 **Options:**
 - `client` (Dialog) - Dialog SDK client instance (required)
+- `language` (string, required) - Lowercase ISO 639-1 language code, e.g. `fr`
+- `currency` (string, required) - ISO 4217 currency, e.g. `EUR`
 - `surface` (SearchSurface, optional) - Where results are displayed, for analytics (default: `'search_page'`)
 - `navigate` ((url, hit) => void, optional) - Router adapter called after selection attribution (e.g. `(url) => router.push(url)`). Omit it to let the cards' plain `<a href>` links navigate natively.
 - `debounceMs` (number, optional) - Keystroke debounce (default: 250)
 - `hitsPerPage` (number, optional) - Results per page (default: 12)
-- `locale` (string, optional) - Storefront locale naming the searched index (`products_fr`); defaults to the client's
+
+Search language and currency are explicit and independent of `client.locale`, which can be a regional locale such as `fr-FR`.
 
 **Returns:** `{ controller, state }` — pass both to the components below. `state.status` is `idle` / `loading` / `success` / `empty` / `error`.
 
@@ -161,7 +164,6 @@ Floating results panel overlaying the page content: portaled to `document.body` 
 **Props:**
 - `controller` (SearchController) - From `useDialogSearch` (required)
 - `state` (SearchControllerState) - From `useDialogSearch` (required)
-- `locale` (string, optional) - BCP 47 locale used to format the card prices via `Intl.NumberFormat` (browser default when omitted)
 
 #### DialogSearchPagination
 

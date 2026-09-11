@@ -18,7 +18,10 @@ export interface CurrentProduct {
 
 export interface DialogConstructor {
   apiKey: string;
+  /** BCP-47 locale, e.g. `fr-FR`. */
   locale: string;
+  /** Currency (ISO 4217), independent of language. */
+  currency: string;
   /**
    * Optional ISO 3166 country code used to format prices (e.g. 'FR', 'US').
    * When provided it takes precedence over the country derived from `locale`.

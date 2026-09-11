@@ -79,14 +79,3 @@ export const getDetailedLocaleInfo = (
     return null;
   }
 };
-
-// The search backend keys its indexes on the bare ISO 639-1 language, while
-// storefronts usually hold full BCP-47 tags ("fr-FR", "pt-BR"). An unparsable
-// value is returned as-is so a search is never dropped over its locale.
-export const toIso639LanguageCode = (locale: string): string => {
-  try {
-    return new Intl.Locale(locale).language;
-  } catch {
-    return locale;
-  }
-};

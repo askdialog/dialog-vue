@@ -4,9 +4,7 @@ import { EventsHandler } from "../EventsHandler";
 import { DIALOG_CUSTOM_EVENT, DialogEvents } from "../types/events";
 import { SearchAnalyticsEnvelope } from "../types/searchAnalytics";
 
-// The Dialog constructor loads the assistant into the DOM; these tests only
-// exercise the search tracking methods, so the instance is built from the
-// prototype with just the fields those methods read.
+// Bypass constructor DOM setup; provide only the fields used by analytics.
 const buildDialog = (): {
   dialog: Dialog;
   emitExternalEvent: ReturnType<typeof vi.fn>;
@@ -27,7 +25,7 @@ const buildDialog = (): {
 
 const envelope: SearchAnalyticsEnvelope = {
   query_id: "query-1",
-  index: "products_fr",
+  index: "products_fr_eur",
   surface: "search_page",
   search_type: "lexical",
   page: 2,

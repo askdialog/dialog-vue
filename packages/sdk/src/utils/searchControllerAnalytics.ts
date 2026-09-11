@@ -9,10 +9,7 @@ import {
   SearchImpressionTracker,
 } from "./searchImpressions";
 
-/**
- * Internal DEC-2448 wiring of the search controller: envelope computation,
- * viewport impressions and selection attribution. Not part of the public API.
- */
+/** Internal binding for search impressions and selections. */
 export interface ControllerAnalyticsBinding {
   onResponse(result: SearchResult): void;
   observeResult(element: Element, result: SearchResult, index: number): void;
@@ -22,7 +19,7 @@ export interface ControllerAnalyticsBinding {
 
 const resultItem = (result: SearchResult, index: number): SearchResultItem => ({
   product_id: result.hits[index].objectID,
-  // 1-based and absolute across pages (page 2, first item, 20/page → 21).
+  // One-based position across all pages.
   position: result.page * result.hitsPerPage + index + 1,
 });
 
@@ -32,8 +29,7 @@ export function createControllerAnalytics(
   let impressions: SearchImpressionTracker | undefined;
   let envelope: SearchAnalyticsEnvelope | undefined;
 
-  // Lazy: the tracker needs window/IntersectionObserver, so a controller
-  // constructed in a non-browser context stays inert until a response lands.
+  // Defer browser-dependent tracking until a response arrives.
   const tracker = (): SearchImpressionTracker => {
     impressions ??= createSearchImpressionTracker({
       emit: analytics.trackViewSearchResults,
@@ -48,17 +44,16 @@ export function createControllerAnalytics(
         query_id: result.queryID,
         index: result.index,
         surface: analytics.surface,
-        // The storefront search API is lexical-only today.
+
         search_type: "lexical",
-        // Analytics pages are 1-based; the wire response is 0-based.
+        // Convert the API page to one-based analytics numbering.
         page: result.page + 1,
         total_hits: result.nbHits,
         query_length: [...result.query].length,
       };
       tracker().setContext(envelope);
       if (result.nbHits === 0) {
-        // A rendered no-results state is the view event with zero items; it
-        // shows above the fold, no viewport gating needed.
+        // Empty results emit immediately without visibility tracking.
         analytics.trackViewSearchResults({ ...envelope, items: [] });
       }
     },
@@ -70,7 +65,7 @@ export function createControllerAnalytics(
         return;
       }
       const item = resultItem(result, index);
-      // The click forces the item's impression so CTR by position stays ≤100%.
+      // Count the impression before recording the selection.
       tracker().forceImpression(item);
       analytics.trackSelectSearchResult({ ...envelope, items: [item] });
     },

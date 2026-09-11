@@ -6,13 +6,25 @@ import {
   SearchRequest,
   SearchResponse,
 } from "../types/search";
-import { toIso639LanguageCode } from "../utils/localization";
 
 const SEARCH_PATH = "/public/search/lexical";
 const API_KEY_HEADER = "x-dialog-api-key";
 
-export const searchIndexName = (index: SearchIndex, locale: string): string =>
-  `${index}_${toIso639LanguageCode(locale)}`;
+/** Build an index name from an ISO 639-1 language and ISO 4217 currency. */
+export const searchIndexName = (
+  index: SearchIndex,
+  language: string,
+  currency: string,
+): string => {
+  if (!/^[a-z]{2}$/.test(language)) {
+    throw new Error("Search language must be a lowercase ISO 639-1 code.");
+  }
+  if (!/^[A-Za-z]{3}$/.test(currency)) {
+    throw new Error("Search currency must be an ISO 4217 code.");
+  }
+
+  return `${index}_${language}_${currency.toLowerCase()}`;
+};
 
 const toSearchError = async (
   response: Response,
@@ -32,10 +44,7 @@ const toSearchError = async (
   return new DialogSearchError({ status: response.status, code, message });
 };
 
-/**
- * One POST per invocation — no debounce, cache, retry or request state; the
- * caller owns cancellation through `options.signal`.
- */
+/** Send one request. The caller controls cancellation through `options.signal`. */
 export const searchLexical = async (
   apiKey: string,
   request: SearchRequest,

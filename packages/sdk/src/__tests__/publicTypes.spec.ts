@@ -18,11 +18,13 @@ describe("public API types", () => {
     expectTypeOf<{
       apiKey: string;
       locale: string;
+      currency: string;
     }>().toMatchTypeOf<DialogConstructor>();
 
     expectTypeOf<{
       apiKey: string;
       locale: string;
+      currency: string;
       callbacks: DialogCallbacks;
     }>().toMatchTypeOf<DialogConstructor>();
 
@@ -30,8 +32,11 @@ describe("public API types", () => {
     expectTypeOf<{
       apiKey: string;
       locale: string;
+      currency: string;
       callbacks: { addToCart: string; getProduct: number };
     }>().not.toMatchTypeOf<DialogConstructor>();
+
+    expectTypeOf<Dialog["currency"]>().toEqualTypeOf<string>();
 
     expectTypeOf<Dialog["search"]>().parameters.toMatchTypeOf<
       [SearchRequest, (SearchOptions | undefined)?]

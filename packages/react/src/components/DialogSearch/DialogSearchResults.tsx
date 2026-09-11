@@ -14,9 +14,7 @@ import "./DialogSearchResults.css";
 
 const PANEL_OFFSET_PX = 8;
 const VIEWPORT_MARGIN_PX = 16;
-// Below this available height the panel flips above the bar when there is
-// more room there — otherwise a bar near the viewport bottom leaves the
-// panel zero or negative height.
+// Flip above the bar when space below is limited and more is available above.
 const MIN_PANEL_SPACE_PX = 200;
 
 interface DialogSearchResultsProps {
@@ -127,9 +125,7 @@ const panelContent = (
   }
 };
 
-// The panel is portaled to document.body in position: fixed so no ancestor
-// stacking context or overflow clipping can hide it; the in-flow anchor div
-// (rendered right after the bar) provides its coordinates.
+// Render fixed under document.body to avoid ancestor clipping and stacking contexts.
 export const DialogSearchResults: FC<DialogSearchResultsProps> = ({
   controller,
   state,
