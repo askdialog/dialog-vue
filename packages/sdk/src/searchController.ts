@@ -17,7 +17,7 @@ const INITIAL_STATE: SearchControllerState = {
   query: "",
   page: 0,
   response: undefined,
-  additionalResults: undefined,
+  sections: undefined,
   error: undefined,
 };
 
@@ -29,7 +29,7 @@ export function createSearchController({
   navigate,
   debounceMs = 250,
   hitsPerPage = 12,
-  additionalIndexes: indexes = [],
+  sections = [],
 }: SearchControllerOptions): SearchController {
   const requestConfig = {
     indexName: searchIndexName("products", language, currency),
@@ -69,7 +69,7 @@ export function createSearchController({
 
     setState({ status: SearchStatus.LOADING, query, page });
     try {
-      const requested = typeof indexes === "function" ? indexes() : indexes;
+      const requested = typeof sections === "function" ? sections() : sections;
       const request = buildSearchRequest(query, page, requested, requestConfig);
       const response = await client.search(request, {
         signal: abortController.signal,
@@ -98,7 +98,7 @@ export function createSearchController({
         status: SearchStatus.ERROR,
         error,
         response: undefined,
-        additionalResults: undefined,
+        sections: undefined,
       });
     }
   };

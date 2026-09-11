@@ -24,7 +24,7 @@ export const SearchStatus = {
 
 export type SearchStatus = (typeof SearchStatus)[keyof typeof SearchStatus];
 
-export interface AdditionalSearchIndex {
+export interface SearchSection {
   index: Exclude<SearchIndex, "products">;
   hitsPerPage?: number;
 }
@@ -37,7 +37,7 @@ export interface SearchControllerState {
   page: number;
   /** Last products result; retained while loading and cleared on error or reset. */
   response?: SearchResult;
-  additionalResults?: Partial<Record<SearchIndex, SearchResult>>;
+  sections?: Partial<Record<SearchIndex, SearchResult>>;
   error?: unknown;
 }
 
@@ -64,9 +64,7 @@ export interface SearchControllerOptions {
   navigate?: (url: string, hit: SearchHit) => void;
   debounceMs?: number;
   hitsPerPage?: number;
-  additionalIndexes?:
-    | readonly AdditionalSearchIndex[]
-    | (() => readonly AdditionalSearchIndex[]);
+  sections?: readonly SearchSection[] | (() => readonly SearchSection[]);
 }
 
 /** Manage search requests, pagination and analytics independently of rendering. */

@@ -5,7 +5,7 @@ import {
   SearchResponse,
   SearchResult,
 } from "../types/search";
-import { AdditionalSearchIndex } from "../types/searchController";
+import { SearchSection } from "../types/searchController";
 
 // Match the API minimum query length.
 const MIN_QUERY_CODE_POINTS = 2;
@@ -25,39 +25,39 @@ interface SearchRequestConfig {
 
 interface SearchResults {
   response: SearchResult;
-  additionalResults: Partial<Record<SearchIndex, SearchResult>> | undefined;
+  sections: Partial<Record<SearchIndex, SearchResult>> | undefined;
 }
 
 export const buildSearchRequest = (
   query: string,
   page: number,
-  additionalIndexes: readonly AdditionalSearchIndex[],
+  sections: readonly SearchSection[],
   { indexName, language, currency, hitsPerPage }: SearchRequestConfig,
 ): SearchRequest => ({
   requests: [
     { indexName, query, page, hitsPerPage },
-    ...additionalIndexes.map((additionalIndex) => ({
-      indexName: searchIndexName(additionalIndex.index, language, currency),
+    ...sections.map((section) => ({
+      indexName: searchIndexName(section.index, language, currency),
       query,
       page: 0,
-      hitsPerPage: additionalIndex.hitsPerPage ?? hitsPerPage,
+      hitsPerPage: section.hitsPerPage ?? hitsPerPage,
     })),
   ],
 });
 
 export const readSearchResults = (
   result: SearchResponse,
-  requested: readonly AdditionalSearchIndex[],
+  requested: readonly SearchSection[],
   { indexName, language, currency }: SearchRequestConfig,
 ): SearchResults => {
   const response = result.results.find((entry) => entry.index === indexName);
   if (response === undefined) {
     throw new Error(`Dialog search returned no ${indexName} entry`);
   }
-  const additionalResults: Partial<Record<SearchIndex, SearchResult>> = {};
-  for (const additionalIndex of requested) {
+  const sections: Partial<Record<SearchIndex, SearchResult>> = {};
+  for (const section of requested) {
     const requestedIndexName = searchIndexName(
-      additionalIndex.index,
+      section.index,
       language,
       currency,
     );
@@ -65,12 +65,12 @@ export const readSearchResults = (
       (candidate) => candidate.index === requestedIndexName,
     );
     if (entry !== undefined) {
-      additionalResults[additionalIndex.index] = entry;
+      sections[section.index] = entry;
     }
   }
 
   return {
     response,
-    additionalResults: requested.length === 0 ? undefined : additionalResults,
+    sections: requested.length === 0 ? undefined : sections,
   };
 };

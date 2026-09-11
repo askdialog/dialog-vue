@@ -382,7 +382,7 @@ describe("createSearchController", () => {
     expect(search).toHaveBeenCalledTimes(1);
     expect(controller.getState().status).toBe(SearchStatus.LOADING);
   });
-  it("requests the additional indexes on their first page with the products and exposes their entries", async () => {
+  it("requests the sections on their first page with the products and exposes their entries", async () => {
     const controller = createSearchController({
       client: { search },
       language: "fr",
@@ -392,7 +392,7 @@ describe("createSearchController", () => {
         trackViewSearchResults,
         trackSelectSearchResult,
       },
-      additionalIndexes: [{ index: "collections", hitsPerPage: 5 }],
+      sections: [{ index: "collections", hitsPerPage: 5 }],
     });
     const collections: SearchResult = {
       ...response().results[0],
@@ -422,10 +422,10 @@ describe("createSearchController", () => {
       },
     ]);
     expect(controller.getState().response?.index).toBe("products_fr_usd");
-    expect(controller.getState().additionalResults).toEqual({ collections });
+    expect(controller.getState().sections).toEqual({ collections });
   });
 
-  it("resolves an additional indexes function per request and leaves a missing entry out", async () => {
+  it("resolves a sections function per request and leaves a missing entry out", async () => {
     let enabled = false;
     const controller = createSearchController({
       client: { search },
@@ -436,7 +436,7 @@ describe("createSearchController", () => {
         trackViewSearchResults,
         trackSelectSearchResult,
       },
-      additionalIndexes: () => (enabled ? [{ index: "collections" }] : []),
+      sections: () => (enabled ? [{ index: "collections" }] : []),
     });
     search.mockResolvedValue(response());
 
@@ -452,10 +452,10 @@ describe("createSearchController", () => {
       indexName: "collections_fr_eur",
       hitsPerPage: 12,
     });
-    expect(controller.getState().additionalResults).toEqual({});
+    expect(controller.getState().sections).toEqual({});
   });
 
-  it("enters the error state when the additional indexes resolver throws", async () => {
+  it("enters the error state when the sections resolver throws", async () => {
     const failure = new Error("entitlement lookup failed");
     const controller = createSearchController({
       client: { search },
@@ -466,7 +466,7 @@ describe("createSearchController", () => {
         trackViewSearchResults,
         trackSelectSearchResult,
       },
-      additionalIndexes: () => {
+      sections: () => {
         throw failure;
       },
     });
@@ -479,7 +479,7 @@ describe("createSearchController", () => {
       status: SearchStatus.ERROR,
       error: failure,
       response: undefined,
-      additionalResults: undefined,
+      sections: undefined,
     });
   });
 });

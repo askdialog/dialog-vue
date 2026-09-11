@@ -266,7 +266,7 @@ A non-2xx answer rejects with `DialogSearchError` — stable `name`, HTTP `statu
 
 `createSearchController()` handles debounce, cancellation, stale responses, pagination, retries and search analytics. New queries reset pagination. State is `idle`, `loading`, `success`, `empty` or `error`.
 
-Products are available in `state.response`. Optional `additionalIndexes` query additional indexes in the same request and expose results in `state.additionalResults`.
+Products are available in `state.response`. Optional `sections` query additional indexes in the same request and expose results in `state.sections`.
 
 ```typescript
 import { createSearchController, Dialog, SearchStatus } from '@askdialog/dialog-sdk';
@@ -285,11 +285,11 @@ const controller = createSearchController({
   navigate: (url) => router.push(url), // optional platform routing adapter
   debounceMs: 250, // optional (default 250)
   hitsPerPage: 12, // optional (default 12)
-  additionalIndexes: [{ index: 'collections', hitsPerPage: 5 }], // optional, first page only; a function is resolved per request
+  sections: [{ index: 'collections', hitsPerPage: 5 }], // optional, first page only; a function is resolved per request
 });
 
 const unsubscribe = controller.subscribe((state) => {
-  // state: { status, query, page, response?, additionalResults?, error? }
+  // state: { status, query, page, response?, sections?, error? }
   if (state.status === SearchStatus.SUCCESS) {
     renderCards(state.response.hits).forEach((element, index) => {
       controller.observeResult(element, index); // viewport impression
