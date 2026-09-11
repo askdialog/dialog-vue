@@ -1,9 +1,6 @@
 import type { SearchPriceRange } from "@askdialog/dialog-sdk";
 
-// Catalog data is untrusted: a malformed `currencyCode` makes
-// `Intl.NumberFormat` throw. Degrade to no price rather than taking the whole
-// results panel down mid-render; a price indexed without a currency shows as
-// a bare amount.
+// Hide invalid prices; show a bare amount when currency is absent.
 const formatMoney = (
   { amount, currencyCode }: SearchPriceRange["min"],
   locale: string | undefined,
@@ -37,7 +34,7 @@ export const formatSearchPrice = (
   }
 };
 
-// Catalog data is untrusted: only http(s) links, so a `javascript:` URL cannot execute script.
+// Allow only HTTP(S) product links.
 export const safeProductHref = (url: string): string | undefined => {
   try {
     const { protocol } = new URL(url, window.location.href);

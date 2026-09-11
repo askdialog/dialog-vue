@@ -7,7 +7,11 @@ import {
 } from "@askdialog/dialog-react";
 
 export const SearchDemo: FC<{ client: Dialog }> = ({ client }) => {
-  const { controller, state } = useDialogSearch({ client });
+  const { controller, state } = useDialogSearch({
+    client,
+    language: "en",
+    currency: client.currency,
+  });
 
   return (
     <section className="search-demo">

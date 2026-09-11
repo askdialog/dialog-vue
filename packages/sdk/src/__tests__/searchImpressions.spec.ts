@@ -5,7 +5,7 @@ import { SearchAnalyticsEnvelope } from "../types/searchAnalytics";
 
 const envelope: SearchAnalyticsEnvelope = {
   query_id: "query-1",
-  index: "products_fr",
+  index: "products_fr_eur",
   surface: "search_page",
   search_type: "lexical",
   page: 1,
@@ -233,8 +233,7 @@ describe("createSearchImpressionTracker", () => {
     windowListeners.get("pageshow")?.({ persisted: true });
     intersect(card, 0.6);
 
-    // A stale pre-restore timer (200ms left) would record at 200ms and flush
-    // at 1700ms; a fresh dwell records at 500ms and flushes at 2000ms.
+    // Fresh dwell: record at 500ms and flush at 2000ms, not at 200ms and 1700ms.
     vi.advanceTimersByTime(1700);
     expect(emit).not.toHaveBeenCalled();
 

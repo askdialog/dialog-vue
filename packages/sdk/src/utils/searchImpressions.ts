@@ -4,17 +4,14 @@ import {
   ViewSearchResultsParams,
 } from "../types/searchAnalytics";
 
-// An item counts as seen after being ≥50% visible for ≥500ms; qualified items
-// are batched and flushed on qualification inactivity, context change,
-// pagehide or the batch cap — in practice 1-3 events per search, not one per
-// item.
+// Defaults: 50% visibility for 500ms. Flush on idle, context change, pagehide or batch limit.
 const DEFAULT_VISIBILITY_THRESHOLD = 0.5;
 const DEFAULT_DWELL_MS = 500;
 const DEFAULT_IDLE_FLUSH_MS = 1500;
 const DEFAULT_MAX_ITEMS_PER_EVENT = 100;
 
 export interface SearchImpressionTrackerOptions {
-  /** Receives each flushed batch — wire it to `dialog.trackViewSearchResults`. */
+  /** Receive each batch, typically through `dialog.trackViewSearchResults`. */
   emit: (params: ViewSearchResultsParams) => void;
   visibilityThreshold?: number;
   dwellMs?: number;
@@ -23,11 +20,11 @@ export interface SearchImpressionTrackerOptions {
 }
 
 export interface SearchImpressionTracker {
-  /** Declare the envelope of the response being rendered; flushes the previous batch. */
+  /** Flush the previous batch and start tracking the new response. */
   setContext(envelope: SearchAnalyticsEnvelope): void;
-  /** Watch a rendered result element for viewport impressions. */
+  /** Track viewport impressions for a result element. */
   observe(element: Element, item: SearchResultItem): void;
-  /** A click counts as an impression, otherwise CTR by position can exceed 100%. */
+  /** Record and flush an impression without waiting for visibility. */
   forceImpression(item: SearchResultItem): void;
   flush(): void;
   disconnect(): void;
@@ -117,16 +114,12 @@ export function createSearchImpressionTracker({
     observedItems.clear();
   };
 
-  // The page can die mid-batch: ship what already qualified. The host bridge
-  // captures this last event with a beacon-capable transport.
+  // Flush qualified impressions before leaving the page.
   const handlePagehide = (): void => {
     flush();
   };
 
-  // A back/forward-cache restore is a new exposure: re-qualify what is on
-  // screen instead of keeping it deduplicated forever. Dwell timers frozen
-  // mid-count resume with their remaining delay, so cancel them — the
-  // restored exposure must earn its full dwell.
+  // After a back/forward-cache restore, reset deduplication and restart dwell timers.
   const handlePageshow = (event: PageTransitionEvent): void => {
     if (!event.persisted) {
       return;
@@ -144,7 +137,7 @@ export function createSearchImpressionTracker({
 
   return {
     setContext(nextEnvelope) {
-      // Pending impressions belong to the envelope they qualified under.
+      // Flush under the previous context before replacing it.
       flush();
       seen.clear();
       envelope = nextEnvelope;

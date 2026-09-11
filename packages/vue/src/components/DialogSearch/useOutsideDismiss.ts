@@ -4,10 +4,7 @@ import {
 } from "@askdialog/dialog-sdk";
 import { computed, onMounted, onUnmounted, ref, watch, type Ref } from "vue";
 
-// Closes the floating panel on any pointer interaction outside it and outside
-// the search bar (the anchor's previous sibling). The controller keeps its
-// results: typing again or re-focusing the bar reopens the panel, like a
-// native autocomplete.
+// Dismiss outside the panel and search bar while retaining search results.
 export const useOutsideDismiss = (
   state: Readonly<Ref<SearchControllerState>>,
   anchorRef: Ref<HTMLDivElement | undefined>,
@@ -21,9 +18,7 @@ export const useOutsideDismiss = (
     () => state.value.status !== SearchStatus.IDLE && !dismissed.value,
   );
 
-  // Only a new committed query signals user intent — deliberately NOT every
-  // state emission: a response landing after the user clicked away must not
-  // reopen the panel on its own.
+  // Reopen on query changes, not on responses arriving after dismissal.
   watch(
     () => state.value.query,
     () => {

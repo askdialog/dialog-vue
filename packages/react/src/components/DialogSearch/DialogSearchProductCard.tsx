@@ -18,21 +18,15 @@ export const DialogSearchProductCard: FC<DialogSearchProductCardProps> = ({
 }) => {
   const cardRef = useRef<HTMLLIElement>(null);
 
-  // Depends on `hit` (fresh object per response) so a new response
-  // re-observes the element even when React reuses the DOM node.
+  // Reobserve each response even when the framework reuses the DOM node.
   useEffect(() => {
     if (cardRef.current !== null) {
       controller.observeResult(cardRef.current, index);
     }
   }, [controller, hit, index]);
 
-  // A modified click (cmd/ctrl/shift/alt) means "open in a new tab/window":
-  // the SPA adapter can't do that, so record the selection but let the browser
-  // navigate natively. For a plain click, when the adapter handles the
-  // in-app transition, suppress the anchor's native navigation so the click
-  // doesn't also trigger a full-page load. Without an adapter, selectResult
-  // returns false and the native same-tab navigation proceeds (attribution is
-  // designed to survive it).
+  // Preserve native modified clicks. Prevent default navigation only when the
+  // adapter handles the click; record selection in both cases.
   const handleClick = (event: MouseEvent): void => {
     const opensNatively =
       event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
@@ -41,9 +35,7 @@ export const DialogSearchProductCard: FC<DialogSearchProductCardProps> = ({
     }
   };
 
-  // auxclick also fires on right-click; only the middle button opens a tab.
-  // It always opens natively (new tab), so record attribution without running
-  // the in-app adapter.
+  // Track middle-clicks without the navigation adapter; ignore right-clicks.
   const handleAuxClick = (event: MouseEvent): void => {
     if (event.button === 1) {
       controller.selectResult(index, { navigate: false });

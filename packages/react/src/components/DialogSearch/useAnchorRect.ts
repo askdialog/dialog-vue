@@ -7,13 +7,8 @@ export interface AnchorRect {
   width: number;
 }
 
-// Tracks the viewport position of the element the panel is anchored to — the
-// anchor's previous sibling (the search bar in the documented composition),
-// falling back to the zero-height anchor itself — so a fixed element can
-// follow it; the capture-phase scroll listener also catches scrolling
-// ancestors. The viewport height is separate state (not an AnchorRect field)
-// so consumers recompute available space when the window resizes without the
-// bar moving.
+// Position the panel from the previous sibling (search bar), falling back to the anchor.
+// Capture ancestor scrolls and track viewport height separately for available space.
 export const useAnchorRect = (
   active: boolean,
 ): {
