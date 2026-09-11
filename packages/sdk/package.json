@@ -52,7 +52,7 @@
     "esbuild": "^0.25.12",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
-    "vitest": "^3.0.0"
+    "vitest": "^4.1.11"
   },
   "publishConfig": {
     "access": "public"
