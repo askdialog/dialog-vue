@@ -66,8 +66,6 @@ Full-featured dialog component with suggestions and input.
 
 **Props:**
 - `client` (Dialog) - Dialog SDK client instance (required)
-- `language` (string, required) - Lowercase ISO 639-1 language code, e.g. `fr`
-- `currency` (string, required) - ISO 4217 currency, e.g. `EUR`
 - `productId` (string) - Product ID (required)
 - `productTitle` (string) - Product title (required)
 - `selectedVariantId` (string, optional) - Selected variant ID
@@ -90,8 +88,6 @@ Standalone input component for asking questions.
 
 **Props:**
 - `client` (Dialog) - Dialog SDK client instance (required)
-- `language` (string, required) - Lowercase ISO 639-1 language code, e.g. `fr`
-- `currency` (string, required) - ISO 4217 currency, e.g. `EUR`
 - `productId` (string) - Product ID (required)
 - `productTitle` (string) - Product title (required)
 - `placeholder` (string, optional) - Input placeholder text
