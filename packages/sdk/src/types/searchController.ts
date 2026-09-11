@@ -1,4 +1,3 @@
-import type { Dialog } from "../Dialog";
 import {
   SearchHit,
   SearchIndex,
@@ -54,7 +53,8 @@ export interface SearchControllerAnalytics {
 }
 
 export interface SearchControllerOptions {
-  client: Pick<Dialog, "search">;
+  /** Search function bound to its client, or a custom transport. */
+  search: SearchFunction;
   /** Lowercase ISO 639-1 language code, e.g. `fr`. */
   language: string;
   /** ISO 4217 currency, independent of language. */

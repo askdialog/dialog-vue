@@ -34,7 +34,7 @@ export const useDialogSearch = (
 ): DialogSearch => {
   const { client, surface = "search_page", ...rest } = options;
   const controller = createSearchController({
-    client,
+    search: (request, requestOptions) => client.search(request, requestOptions),
     analytics: {
       surface,
       trackViewSearchResults: (params) => client.trackViewSearchResults(params),

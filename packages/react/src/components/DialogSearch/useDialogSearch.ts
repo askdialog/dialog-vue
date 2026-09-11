@@ -47,7 +47,8 @@ export const useDialogSearch = (
     if (controllerRef.current === undefined) {
       const { client, surface = "search_page", ...rest } = optionsRef.current;
       controllerRef.current = createSearchController({
-        client,
+        search: (request, requestOptions) =>
+          client.search(request, requestOptions),
         analytics: {
           surface,
           trackViewSearchResults: (params) =>

@@ -157,7 +157,7 @@ function render(state) {
 function start(apiKey) {
   const dialog = new Dialog({ apiKey, locale: "fr-FR", currency: "EUR" });
   controller = createSearchController({
-    client: dialog,
+    search: (request, options) => dialog.search(request, options),
     language: "fr",
     currency: dialog.currency,
     analytics: {

@@ -274,7 +274,7 @@ import { createSearchController, Dialog, SearchStatus } from '@askdialog/dialog-
 const client = new Dialog({ apiKey: 'YOUR_API_KEY', locale: 'fr-FR', currency: 'EUR' });
 
 const controller = createSearchController({
-  client,
+  search: (request, options) => client.search(request, options),
   language: 'fr',
   currency: client.currency,
   analytics: {

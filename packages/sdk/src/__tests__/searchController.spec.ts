@@ -71,7 +71,7 @@ const states: SearchControllerState[] = [];
 
 const createController = (): ReturnType<typeof createSearchController> => {
   const controller = createSearchController({
-    client: { search },
+    search,
     language: "fr",
     currency: "EUR",
     analytics: {
@@ -128,7 +128,7 @@ describe("createSearchController", () => {
 
   it("sends one products entry with independent language and currency", async () => {
     const controller = createSearchController({
-      client: { search },
+      search,
       language: "fr",
       currency: "USD",
       analytics: {
@@ -384,7 +384,7 @@ describe("createSearchController", () => {
   });
   it("requests the sections on their first page with the products and exposes their entries", async () => {
     const controller = createSearchController({
-      client: { search },
+      search,
       language: "fr",
       currency: "USD",
       analytics: {
@@ -428,7 +428,7 @@ describe("createSearchController", () => {
   it("resolves a sections function per request and leaves a missing entry out", async () => {
     let enabled = false;
     const controller = createSearchController({
-      client: { search },
+      search,
       language: "fr",
       currency: "EUR",
       analytics: {
@@ -458,7 +458,7 @@ describe("createSearchController", () => {
   it("enters the error state when the sections resolver throws", async () => {
     const failure = new Error("entitlement lookup failed");
     const controller = createSearchController({
-      client: { search },
+      search,
       language: "fr",
       currency: "EUR",
       analytics: {

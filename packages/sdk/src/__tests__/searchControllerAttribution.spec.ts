@@ -43,7 +43,7 @@ const navigate = vi.fn();
 
 const createController = (): SearchController =>
   createSearchController({
-    client: { search },
+    search,
     language: "fr",
     currency: "EUR",
     analytics: {
@@ -256,7 +256,7 @@ describe("search controller attribution", () => {
 
   it("returns false when no navigate adapter is configured", async () => {
     const controller = createSearchController({
-      client: { search },
+      search,
       language: "fr",
       currency: "EUR",
       analytics: {

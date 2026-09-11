@@ -22,7 +22,7 @@ const INITIAL_STATE: SearchControllerState = {
 };
 
 export function createSearchController({
-  client,
+  search,
   language,
   currency,
   analytics,
@@ -71,7 +71,7 @@ export function createSearchController({
     try {
       const requested = typeof sections === "function" ? sections() : sections;
       const request = buildSearchRequest(query, page, requested, requestConfig);
-      const response = await client.search(request, {
+      const response = await search(request, {
         signal: abortController.signal,
       });
       if (id !== requestId) {
